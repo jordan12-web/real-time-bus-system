@@ -20,8 +20,13 @@
 [Done] Booking endpoints (`POST /bookings`, `GET /bookings/:id`, `DELETE /bookings/:id`)
 [Done] Role-based access control middleware
 
-## Phase 4 — Payment
-[Todo] Chapa sandbox integration
+## Phase 4 — Payment (Chapa Sandbox)
+[Done] Payment model (`src/models/Payment.js`)
+[Done] Payment service (`src/services/paymentService.js`)
+[Done] Initiate checkout endpoint (`POST /payments/initiate`)
+[Done] Public webhook endpoint (`POST /payments/webhook` with Chapa API verification)
+[Done] Get payment status endpoint (`GET /payments/:id`)
+[Done] Automatic Booking status update on payment verification (`confirmed` on success, `cancelled` on failure)
 
 ## Phase 5 — Tickets & Tracking
 [Todo] QR ticket generation
