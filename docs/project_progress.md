@@ -29,6 +29,13 @@
 [Done] Automatic Booking status update on payment verification (`confirmed` on success, `cancelled` on failure)
 
 ## Phase 5 — Tickets & Tracking
-[Todo] QR ticket generation
-[Todo] QR validation
-[Todo] GPS tracking
+[Done] Ticket model (`src/models/Ticket.js`)
+[Done] QR payload signing & HMAC-SHA256 verification
+[Done] QR PNG generation using `qrcode` library (saved under `uploads/tickets/`)
+[Done] Generate ticket endpoint (`POST /tickets/:bookingId/generate`)
+[Done] Validate ticket endpoint (`POST /tickets/validate`)
+[Done] Revoke ticket endpoint (`POST /tickets/:id/revoke`)
+[Done] TripLocation model (`src/models/TripLocation.js`)
+[Done] GPS location reporting endpoint (`POST /tracking/report`)
+[Done] Recent locations query endpoint (`GET /tracking/:tripId/recent`)
+[Done] Real-time tracking stream via Server-Sent Events (`GET /tracking/:tripId/stream`)

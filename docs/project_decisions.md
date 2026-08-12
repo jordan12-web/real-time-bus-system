@@ -19,3 +19,13 @@
 - **Decision**: Chapa Payment Webhook Verification Strategy.
 - **Reason**: Security requirement — webhooks payloads must not be trusted blindly.
 - **Impact**: The `POST /payments/webhook` endpoint extracts `tx_ref` and explicitly invokes Chapa's transaction verification API (`GET /v1/transaction/verify/:tx_ref`) using `CHAPA_SECRET_KEY` before updating Payment status to `success`/`failed` and Booking status to `confirmed`/`cancelled`. Secrets are managed via `CHAPA_SECRET_KEY` and `CHAPA_PUBLIC_KEY` in environment variables.
+
+## 2026-08-11
+- **Decision**: QR Ticket HMAC Signature & Local File Storage.
+- **Reason**: Ensure tamper-proof QR tickets without heavy external dependencies.
+- **Impact**: QR payload `{ t, b, u, r, iat }` is signed using HMAC-SHA256 with `JWT_SECRET`. The payload and signature are base64-encoded and generated as a PNG using `qrcode` library stored in `uploads/tickets/` served statically via `/uploads`.
+
+## 2026-08-11
+- **Decision**: Real-Time GPS Tracking via Server-Sent Events (SSE).
+- **Reason**: Minimal, lightweight, native HTTP streaming protocol without needing WebSocket infrastructure or external socket libraries for MVP.
+- **Impact**: Drivers post locations via `POST /tracking/report`, emitting events on Node.js EventEmitter. Passengers subscribe via `GET /tracking/:tripId/stream` to receive real-time location stream.
