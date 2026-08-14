@@ -1,0 +1,702 @@
+openapi: 3.0.3
+info:
+  title: Real-Time Bus Reservation System API
+  description: Backend API for real-time bus ticket reservations, Chapa payments, QR ticket generation/validation, and GPS bus tracking.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns server operational status.
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              example:
+                status: OK
+
+  /auth/signup:
+    post:
+      summary: Register a new user
+      description: Creates a new user account with hashed password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - full_name
+                - email
+                - password
+              properties:
+                full_name:
+                  type: string
+                  example: Abebe Bikila
+                email:
+                  type: string
+                  format: email
+                  example: abebe@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  example: Password123!
+                phone_number:
+                  type: string
+                  example: "+251911121314"
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+        '400':
+          $ref: '#/components/responses/400Error'
+
+  /auth/login:
+    post:
+      summary: Authenticate user
+      description: Verifies credentials and issues JWT access and refresh tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: abebe@example.com
+                password:
+                  type: string
+                  example: Password123!
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+        '401':
+          $ref: '#/components/responses/401Error'
+
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      description: Issues a new access token using a valid refresh token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Tokens refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+        '401':
+          $ref: '#/components/responses/401Error'
+
+  /auth/me:
+    get:
+      summary: Get current user profile
+      description: Returns the authenticated user's profile information.
+      security:
+        - bearerAuth: []
+      x-roles: [passenger, driver, admin]
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/401Error'
+
+  /trips:
+    get:
+      summary: List all trips
+      description: Retrieves all scheduled trips ordered by departure time.
+      responses:
+        '200':
+          description: List of trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trip'
+    post:
+      summary: Create a new trip
+      description: Creates a new scheduled trip (Admin or Driver only).
+      security:
+        - bearerAuth: []
+      x-roles: [admin, driver]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - route_id
+                - vehicle_id
+                - driver_id
+                - departure_time
+                - arrival_time
+                - price_per_seat
+              properties:
+                route_id:
+                  type: string
+                  example: ROUTE-ADDIS-HAWASSA-01
+                vehicle_id:
+                  type: string
+                  example: BUS-ETH-1002
+                driver_id:
+                  type: string
+                  example: 64f1a2b3c4d5e6f7a8b9c0d1
+                departure_time:
+                  type: string
+                  format: date-time
+                  example: "2026-08-20T08:00:00.000Z"
+                arrival_time:
+                  type: string
+                  format: date-time
+                  example: "2026-08-20T13:00:00.000Z"
+                price_per_seat:
+                  type: number
+                  example: 350.00
+      responses:
+        '201':
+          description: Trip created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '403':
+          $ref: '#/components/responses/403Error'
+
+  /trips/{id}:
+    get:
+      summary: Get trip details
+      description: Returns trip details by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '404':
+          $ref: '#/components/responses/404Error'
+
+  /bookings:
+    post:
+      summary: Reserve a seat on a trip
+      description: Creates a pending booking for a passenger. Prevents duplicate active bookings per trip.
+      security:
+        - bearerAuth: []
+      x-roles: [passenger]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - trip_id
+              properties:
+                trip_id:
+                  type: string
+                  example: 64f1a2b3c4d5e6f7a8b9c0d2
+      responses:
+        '201':
+          description: Booking reserved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          $ref: '#/components/responses/400Error'
+
+  /bookings/{id}:
+    get:
+      summary: Get booking details
+      description: Retrieves booking details for owner, driver, or admin.
+      security:
+        - bearerAuth: []
+      x-roles: [passenger, driver, admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '403':
+          $ref: '#/components/responses/403Error'
+    delete:
+      summary: Cancel booking
+      description: Cancels a booking for owner, driver, or admin.
+      security:
+        - bearerAuth: []
+      x-roles: [passenger, driver, admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+  /payments/initiate:
+    post:
+      summary: Initiate payment via Chapa
+      description: Initiates Chapa checkout for a pending booking. Idempotent if pending checkout URL exists.
+      security:
+        - bearerAuth: []
+      x-roles: [passenger]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bookingId
+              properties:
+                bookingId:
+                  type: string
+                  example: 64f1a2b3c4d5e6f7a8b9c0d3
+                return_url:
+                  type: string
+                  example: http://localhost:3000/payments/success
+      responses:
+        '201':
+          description: Payment initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checkout_url:
+                    type: string
+                  payment:
+                    $ref: '#/components/schemas/Payment'
+
+  /payments/webhook:
+    post:
+      summary: Chapa payment webhook
+      description: Public webhook endpoint triggered by Chapa. Verifies transaction via Chapa API before updating DB.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tx_ref
+              properties:
+                tx_ref:
+                  type: string
+                  example: tx-64f1a2b3c4d5e6f7a8b9c0d3-1770651500000
+                status:
+                  type: string
+                  example: success
+      responses:
+        '200':
+          description: Webhook received and processed
+          content:
+            application/json:
+              example:
+                received: true
+
+  /payments/{id}:
+    get:
+      summary: Get payment record
+      description: Returns payment status and booking reference.
+      security:
+        - bearerAuth: []
+      x-roles: [passenger, admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment record details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payment:
+                    $ref: '#/components/schemas/Payment'
+
+  /tickets/{bookingId}/generate:
+    post:
+      summary: Generate QR ticket
+      description: Generates a signed base64 HMAC QR ticket for a confirmed booking.
+      security:
+        - bearerAuth: []
+      x-roles: [passenger, admin]
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Ticket generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket:
+                    $ref: '#/components/schemas/Ticket'
+                  qr_code_image_url:
+                    type: string
+                  qr_code_data:
+                    type: string
+
+  /tickets/validate:
+    post:
+      summary: Validate QR ticket
+      description: Decodes base64 QR payload, verifies HMAC signature, and marks ticket as used (Driver/Admin only).
+      security:
+        - bearerAuth: []
+      x-roles: [driver, admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qr_code_data
+              properties:
+                qr_code_data:
+                  type: string
+      responses:
+        '200':
+          description: Ticket verified and validated
+          content:
+            application/json:
+              example:
+                valid: true
+                ticket:
+                  id: 64f1a2b3c4d5e6f7a8b9c0d5
+                  status: used
+        '400':
+          description: Invalid signature or ticket already used
+
+  /tickets/{id}/revoke:
+    post:
+      summary: Revoke ticket
+      description: Revokes a ticket (Admin only).
+      security:
+        - bearerAuth: []
+      x-roles: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ticket revoked
+
+  /tracking/report:
+    post:
+      summary: Report GPS location
+      description: Driver submits current bus GPS coordinates (Driver/Admin only).
+      security:
+        - bearerAuth: []
+      x-roles: [driver, admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tripId
+                - latitude
+                - longitude
+              properties:
+                tripId:
+                  type: string
+                latitude:
+                  type: number
+                  minimum: -90
+                  maximum: 90
+                  example: 9.0222
+                longitude:
+                  type: number
+                  minimum: -180
+                  maximum: 180
+                  example: 38.7468
+                speed_kmh:
+                  type: number
+                  example: 60.5
+                heading:
+                  type: number
+                  example: 180
+      responses:
+        '201':
+          description: Location recorded
+
+  /tracking/{tripId}/recent:
+    get:
+      summary: Get recent GPS location history
+      description: Retrieves recent GPS data points for a trip.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: List of location points
+
+  /tracking/{tripId}/stream:
+    get:
+      summary: Real-time GPS stream (SSE)
+      description: Server-Sent Events stream emitting live location updates for a trip.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tripId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SSE event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    400Error:
+      description: Bad request or validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    401Error:
+      description: Unauthorized or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    403Error:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    404Error:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid input parameters
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+        phone_number:
+          type: string
+        role:
+          type: string
+          enum: [passenger, driver, admin]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Trip:
+      type: object
+      properties:
+        id:
+          type: string
+        route_id:
+          type: string
+        vehicle_id:
+          type: string
+        driver_id:
+          type: string
+        departure_time:
+          type: string
+          format: date-time
+        arrival_time:
+          type: string
+          format: date-time
+        price_per_seat:
+          type: number
+        status:
+          type: string
+          enum: [scheduled, in_transit, completed, cancelled]
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        trip_id:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled, expired]
+        total_amount:
+          type: number
+        currency:
+          type: string
+        hold_expires_at:
+          type: string
+          format: date-time
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        booking_id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [pending, success, failed]
+        chapa_tx_ref:
+          type: string
+        chapa_checkout_url:
+          type: string
+
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: string
+        booking_id:
+          type: string
+        qr_code_data:
+          type: string
+        qr_code_image_url:
+          type: string
+        status:
+          type: string
+          enum: [issued, used, revoked]
+        issued_at:
+          type: string
+          format: date-time
+        used_at:
+          type: string
+          format: date-time
+        revoked_at:
+          type: string
+          format: date-time

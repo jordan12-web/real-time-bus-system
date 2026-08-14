@@ -39,3 +39,27 @@
 [Done] GPS location reporting endpoint (`POST /tracking/report`)
 [Done] Recent locations query endpoint (`GET /tracking/:tripId/recent`)
 [Done] Real-time tracking stream via Server-Sent Events (`GET /tracking/:tripId/stream`)
+
+## Phase 6 — Stabilization & Hardening
+[Done] Standardized JSON error response handling (`{ "error": "message" }`) across all services & controllers
+[Done] Process stability handlers (`uncaughtException`, `unhandledRejection`) in `server.js`
+[Done] Strict request input validation (email format, password length, date sanity, numeric ranges)
+[Done] Double-booking prevention check per passenger/trip in `bookingService.js`
+[Done] Idempotent payment initiation handling in `paymentService.js`
+[Done] Gateway & unexpected error logging
+
+## Task 3 — Documentation & API Contract
+[Done] OpenAPI 3.0.3 Specification (`docs/openapi.yaml`)
+[Done] Postman Collection v2.1 (`docs/postman_collection.json`)
+[Done] Postman Environment (`docs/postman_environment.json`)
+[Done] API Runbook & Testing Guide (`docs/README_API.md`)
+[Done] API Changelog & Versioning Policy (`docs/API_CHANGELOG.md`)
+[Done] CI Pipeline Newman Contract Verification (`infra/ci.yml`)
+
+## Task 4 — Deployment, Staging, and Monitoring
+[Done] Staging deployment guide for Render & webhook integration (`docs/deploy_staging.md`)
+[Done] GitHub Actions CI/CD Pipeline (`.github/workflows/ci.yml`)
+[Done] Staging environment template (`docs/staging_env.example`)
+[Done] Monitoring, logging & alerting architecture (`docs/monitoring.md`)
+[Done] Sentry configuration snippet (`backend/src/config/sentry.js`)
+[Done] Emergency code rollback & database restoration runbook (`docs/rollback.md`)

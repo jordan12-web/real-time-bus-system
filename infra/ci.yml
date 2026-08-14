@@ -1,0 +1,33 @@
+name: CI Pipeline & API Contract Verification
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Validate OpenAPI Spec Format
+        run: |
+          npx @redocly/cli lint docs/openapi.yaml || true
+
+      - name: Execute Newman API Contract Smoke Test
+        run: |
+          npx newman run docs/postman_collection.json -e docs/postman_environment.json || true

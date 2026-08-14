@@ -1,0 +1,25 @@
+# Staging Environment Configuration Template
+
+# Server Settings
+NODE_ENV=staging
+PORT=10000
+
+# Database Connection (MongoDB Atlas Staging Cluster)
+MONGODB_URI=mongodb+srv://<staging_db_user>:<staging_db_password>@cluster0.yx969hg.mongodb.net/bus_system_staging?retryWrites=true&w=majority
+
+# JWT Secrets (Use secure 64+ char random strings in staging)
+JWT_SECRET=replace_with_secure_staging_jwt_access_secret_64chars_min
+JWT_REFRESH_SECRET=replace_with_secure_staging_jwt_refresh_secret_64chars_min
+
+# Chapa Payment Sandbox Keys
+CHAPA_SECRET_KEY=CHASECK_TEST-replace_with_your_chapa_staging_secret_key
+CHAPA_PUBLIC_KEY=CHAPUB_TEST-replace_with_your_chapa_staging_public_key
+
+# CORS Settings
+CORS_ORIGINS=https://bus-system-admin-staging.onrender.com,http://localhost:3000
+
+# File Uploads Directory
+UPLOADS_DIR=uploads
+
+# Monitoring & Error Tracking (Sentry DSN)
+SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0

@@ -7,10 +7,21 @@ export const postReportLocation = async (req, res, next) => {
       return res.status(400).json({ error: 'tripId, latitude, and longitude are required' });
     }
 
+    const lat = Number(latitude);
+    const lng = Number(longitude);
+
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      return res.status(400).json({ error: 'latitude must be a number between -90 and 90' });
+    }
+
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      return res.status(400).json({ error: 'longitude must be a number between -180 and 180' });
+    }
+
     const location = await reportLocation({
       tripId,
-      latitude,
-      longitude,
+      latitude: lat,
+      longitude: lng,
       speed_kmh,
       heading,
       recorded_at

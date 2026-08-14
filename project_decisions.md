@@ -29,3 +29,13 @@
 - **Decision**: Real-Time GPS Tracking via Server-Sent Events (SSE).
 - **Reason**: Minimal, lightweight, native HTTP streaming protocol without needing WebSocket infrastructure or external socket libraries for MVP.
 - **Impact**: Drivers post locations via `POST /tracking/report`, emitting events on Node.js EventEmitter. Passengers subscribe via `GET /tracking/:tripId/stream` to receive real-time location stream.
+
+## 2026-08-12
+- **Decision**: Backend Stabilization, Input Validation & Idempotency Strategy.
+- **Reason**: Ensure backend reliability, prevent double-bookings, avoid duplicate payment creation, and maintain clean error formatting under high load.
+- **Impact**: 
+  1. Standardized JSON error response format `{ "error": "message" }` with global Express error handler.
+  2. Input validation for email format, password strength, dates, and geographic coordinate bounds (-90 to 90 lat, -180 to 180 lng).
+  3. Double-booking prevention per user/trip for active bookings.
+  4. Payment initiation idempotency (returns existing pending payment checkout URL if present).
+  5. Process crash safety via `uncaughtException` and `unhandledRejection` handlers in `server.js`.

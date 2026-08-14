@@ -15,6 +15,18 @@ export const createBooking = async ({ user_id, trip_id }) => {
     throw error;
   }
 
+  const existingBooking = await Booking.findOne({
+    user_id,
+    trip_id,
+    status: { $in: ['pending', 'confirmed'] }
+  });
+
+  if (existingBooking) {
+    const error = new Error('You already have an active booking for this trip');
+    error.statusCode = 400;
+    throw error;
+  }
+
   const booking = await Booking.create({
     user_id,
     trip_id,

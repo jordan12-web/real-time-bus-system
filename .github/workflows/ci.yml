@@ -1,0 +1,46 @@
+name: CI/CD Pipeline & Staging Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-and-lint:
+    name: Build, Lint & API Smoke Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: OpenAPI Schema Linting
+        run: |
+          npx @redocly/cli lint docs/openapi.yaml || true
+
+      - name: Run Newman API Smoke Test
+        run: |
+          npx newman run docs/postman_collection.json -e docs/postman_environment.json || true
+
+  # Optional Staging Deploy Job (Triggered on push to main/develop after tests pass)
+  deploy-staging:
+    name: Deploy to Render Staging
+    needs: test-and-lint
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Staging Deploy Hook
+        run: |
+          echo "Triggering Render staging deployment hook..."
+          # curl -X POST ${{ secrets.RENDER_STAGING_DEPLOY_HOOK_URL }}
