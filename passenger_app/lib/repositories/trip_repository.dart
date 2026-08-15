@@ -1,0 +1,29 @@
+import '../models/trip.dart';
+import '../services/trip_service.dart';
+
+/// Trip list/detail access with in-memory caching.
+class TripRepository {
+  final TripService _service;
+  List<Trip>? _cachedTrips;
+
+  TripRepository(this._service);
+
+  Future<List<Trip>> listTrips({bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedTrips != null) {
+      return _cachedTrips!;
+    }
+
+    final rawList = await _service.listTrips();
+    _cachedTrips = rawList
+        .map((item) => Trip.fromJson(item as Map<String, dynamic>))
+        .toList();
+    return _cachedTrips!;
+  }
+
+  Future<Trip> getTrip(String id) async {
+    final raw = await _service.getTrip(id);
+    return Trip.fromJson(raw);
+  }
+
+  void clearCache() => _cachedTrips = null;
+}
