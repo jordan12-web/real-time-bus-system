@@ -7,6 +7,7 @@ import 'package:eventsource/eventsource.dart';
 import '../core/api/dio_client.dart';
 import '../core/config.dart';
 import '../core/exceptions.dart';
+import '../core/json_adapter.dart';
 import '../models/trip_location.dart';
 
 /// Tracking API client — mirrors OpenAPI `/tracking/*` paths.
@@ -39,7 +40,7 @@ class TrackingService {
           },
         ),
       );
-      return TripLocation.fromJson(response.data ?? {});
+      return TripLocation.fromJson(normalizeKeys(response.data ?? {}));
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }
@@ -58,7 +59,11 @@ class TrackingService {
       );
       final rawList = response.data ?? [];
       return rawList
-          .map((item) => TripLocation.fromJson(item as Map<String, dynamic>))
+          .map(
+            (item) => TripLocation.fromJson(
+              normalizeKeys(item as Map<String, dynamic>),
+            ),
+          )
           .toList();
     } on DioException catch (error) {
       throw _client.handleDioError(error);
@@ -87,7 +92,7 @@ class TrackingService {
       if (decoded is Map<String, dynamic>) {
         if (decoded.containsKey('latitude') &&
             decoded.containsKey('longitude')) {
-          yield TripLocation.fromJson(decoded);
+          yield TripLocation.fromJson(normalizeKeys(decoded));
         }
       }
     }

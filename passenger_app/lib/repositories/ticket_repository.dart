@@ -31,8 +31,8 @@ class TicketRepository {
     final ticket = Ticket.fromJson(raw['ticket'] as Map<String, dynamic>);
     final result = TicketGenerationResult(
       ticket: ticket,
-      qrCodeImageUrl: raw['qr_code_image_url']?.toString(),
-      qrCodeData: raw['qr_code_data']?.toString(),
+      qrCodeImageUrl: raw['qrCodeImageUrl']?.toString(),
+      qrCodeData: raw['qrCodeData']?.toString(),
     );
 
     if (ticket.status == 'issued') {

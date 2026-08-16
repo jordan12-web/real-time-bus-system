@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../core/api/dio_client.dart';
+import '../core/json_adapter.dart';
 
 /// Ticket API client — mirrors OpenAPI `/tickets/*` paths.
 class TicketService {
@@ -15,7 +16,7 @@ class TicketService {
           '/tickets/$bookingId/generate',
         ),
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }
@@ -29,7 +30,7 @@ class TicketService {
           data: {'qr_code_data': qrCodeData},
         ),
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }
@@ -40,7 +41,7 @@ class TicketService {
       final response = await _client.sendWithRetry(
         () => _client.dio.post<Map<String, dynamic>>('/tickets/$id/revoke'),
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }

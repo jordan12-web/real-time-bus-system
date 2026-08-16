@@ -11,7 +11,8 @@ void main() async {
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    // Uses Config defaults when .env is missing.
+    // Ignore missing .env at runtime. The app can still boot without environment
+    // variables when they are supplied another way.
   }
   runApp(const ProviderScope(child: PassengerApp()));
 }
@@ -59,10 +60,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       _tripsError = null;
     });
 
-    final success = await ref.read(authControllerProvider.notifier).login(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
+    final success = await ref
+        .read(authControllerProvider.notifier)
+        .login(_emailController.text.trim(), _passwordController.text);
 
     if (!success || !mounted) return;
     await _loadTrips();
@@ -75,8 +75,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     });
 
     try {
-      final trips =
-          await ref.read(tripRepositoryProvider).listTrips(forceRefresh: true);
+      final trips = await ref
+          .read(tripRepositoryProvider)
+          .listTrips(forceRefresh: true);
       if (!mounted) return;
       setState(() {
         _trips = trips;
@@ -125,7 +126,9 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: isLoggedIn ? _buildTripsView(authState) : _buildLoginForm(authState),
+        child: isLoggedIn
+            ? _buildTripsView(authState)
+            : _buildLoginForm(authState),
       ),
     );
   }

@@ -25,10 +25,7 @@ final authServiceProvider = Provider<AuthService>(
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final dioClient = ref.watch(dioClientProvider);
   final authService = ref.watch(authServiceProvider);
-  final repository = AuthRepository(
-    authService,
-    dioClient: dioClient,
-  );
+  final repository = AuthRepository(authService, dioClient: dioClient);
   dioClient.getAccessToken = repository.getAccessToken;
   dioClient.onTokenRefresh = repository.refresh;
   return repository;
@@ -86,11 +83,7 @@ class AuthState {
   final User? user;
   final String? errorMessage;
 
-  const AuthState({
-    this.isLoading = false,
-    this.user,
-    this.errorMessage,
-  });
+  const AuthState({this.isLoading = false, this.user, this.errorMessage});
 
   AuthState copyWith({
     bool? isLoading,
@@ -146,16 +139,10 @@ class AuthController extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: false, user: user);
       return true;
     } on ApiException catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: error.message,
-      );
+      state = state.copyWith(isLoading: false, errorMessage: error.message);
       return false;
     } catch (error) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: error.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: error.toString());
       return false;
     }
   }
@@ -185,7 +172,8 @@ class AuthController extends StateNotifier<AuthState> {
   }
 }
 
-final authControllerProvider =
-    StateNotifierProvider<AuthController, AuthState>((ref) {
-  return AuthController(ref.watch(authRepositoryProvider));
-});
+final authControllerProvider = StateNotifierProvider<AuthController, AuthState>(
+  (ref) {
+    return AuthController(ref.watch(authRepositoryProvider));
+  },
+);

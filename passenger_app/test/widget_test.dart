@@ -5,12 +5,11 @@ import 'package:passenger_app/main.dart';
 
 void main() {
   testWidgets('Verification screen renders login form', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(child: PassengerApp()),
-    );
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(const ProviderScope(child: PassengerApp()));
+    await tester.pump();
 
     expect(find.text('Services Verification'), findsOneWidget);
-    expect(find.text('Login'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Password'), findsOneWidget);
   });
 }

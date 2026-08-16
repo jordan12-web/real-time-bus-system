@@ -24,9 +24,7 @@ Future<T> retryWithBackoff<T>({
 
       final jitterMs = random.nextInt(100);
       final delayMs = initialDelay.inMilliseconds * pow(2, attempt).toInt();
-      await Future<void>.delayed(
-        Duration(milliseconds: delayMs + jitterMs),
-      );
+      await Future<void>.delayed(Duration(milliseconds: delayMs + jitterMs));
     }
   }
 

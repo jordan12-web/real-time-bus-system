@@ -2,12 +2,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Environment configuration loaded from `.env` via flutter_dotenv.
 class Config {
+  static Map<String, String> get _env {
+    try {
+      return dotenv.env;
+    } catch (_) {
+      return const {};
+    }
+  }
+
   static String get apiBaseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://localhost:3000';
+      _env['API_BASE_URL'] ?? 'http://localhost:3000';
 
   /// SSE stream base URL — defaults to API base for local dev.
   static String get sseUrl =>
-      dotenv.env['SSE_URL'] ??
-      dotenv.env['SSE_BASE_URL'] ??
-      apiBaseUrl;
+      _env['SSE_URL'] ?? _env['SSE_BASE_URL'] ?? apiBaseUrl;
 }

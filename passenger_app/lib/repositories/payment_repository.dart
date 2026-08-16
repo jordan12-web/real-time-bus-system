@@ -34,7 +34,7 @@ class PaymentRepository {
     );
 
     final payment = Payment.fromJson(raw['payment'] as Map<String, dynamic>);
-    final checkoutUrl = raw['checkout_url']?.toString() ?? '';
+    final checkoutUrl = raw['checkoutUrl']?.toString() ?? '';
     final result = PaymentInitiationResult(
       checkoutUrl: checkoutUrl,
       payment: payment,
@@ -52,5 +52,6 @@ class PaymentRepository {
     return Payment.fromJson(raw['payment'] as Map<String, dynamic>);
   }
 
-  void clearPendingCache(String bookingId) => _pendingByBooking.remove(bookingId);
+  void clearPendingCache(String bookingId) =>
+      _pendingByBooking.remove(bookingId);
 }

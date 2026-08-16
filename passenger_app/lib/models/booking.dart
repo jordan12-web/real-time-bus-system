@@ -20,23 +20,28 @@ class Booking {
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      id: json['id']?.toString() ?? '',
-      userId: json['user_id']?.toString() ?? '',
-      tripId: json['trip_id']?.toString() ?? '',
+      id: json['id']?.toString() ?? json['bookingId']?.toString() ?? '',
+      userId: json['userId']?.toString() ?? json['user_id']?.toString() ?? '',
+      tripId: json['tripId']?.toString() ?? json['trip_id']?.toString() ?? '',
       status: json['status']?.toString() ?? 'pending',
-      totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
+      totalAmount:
+          (json['totalAmount'] as num? ?? json['total_amount'] as num?)
+              ?.toDouble() ??
+          0.0,
       currency: json['currency']?.toString() ?? 'ETB',
-      holdExpiresAt: json['hold_expires_at']?.toString(),
+      holdExpiresAt:
+          json['holdExpiresAt']?.toString() ??
+          json['hold_expires_at']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'user_id': userId,
-        'trip_id': tripId,
-        'status': status,
-        'total_amount': totalAmount,
-        'currency': currency,
-        'hold_expires_at': holdExpiresAt,
-      };
+    'id': id,
+    'user_id': userId,
+    'trip_id': tripId,
+    'status': status,
+    'total_amount': totalAmount,
+    'currency': currency,
+    'hold_expires_at': holdExpiresAt,
+  };
 }

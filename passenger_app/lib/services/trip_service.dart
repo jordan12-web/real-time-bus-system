@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../core/api/dio_client.dart';
+import '../core/json_adapter.dart';
 
 /// Trip API client — mirrors OpenAPI `/trips` paths.
 class TripService {
@@ -13,7 +14,7 @@ class TripService {
       final response = await _client.sendWithRetry(
         () => _client.dio.get<List<dynamic>>('/trips'),
       );
-      return response.data ?? [];
+      return normalizeJsonList(response.data ?? []);
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }
@@ -24,7 +25,7 @@ class TripService {
       final response = await _client.sendWithRetry(
         () => _client.dio.get<Map<String, dynamic>>('/trips/$id'),
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }

@@ -25,22 +25,25 @@ class TripLocation {
   factory TripLocation.fromJson(Map<String, dynamic> json) {
     return TripLocation(
       id: json['id']?.toString() ?? '',
-      tripId: json['trip_id']?.toString() ?? json['tripId']?.toString() ?? '',
+      tripId: json['tripId']?.toString() ?? json['trip_id']?.toString() ?? '',
       latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
       longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
-      speedKmh: (json['speed_kmh'] as num?)?.toDouble() ?? 0.0,
+      speedKmh:
+          (json['speedKmh'] as num? ?? json['speed_kmh'] as num?)?.toDouble() ??
+          0.0,
       heading: (json['heading'] as num?)?.toDouble() ?? 0.0,
-      recordedAt: json['recorded_at']?.toString(),
+      recordedAt:
+          json['recordedAt']?.toString() ?? json['recorded_at']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'trip_id': tripId,
-        'latitude': latitude,
-        'longitude': longitude,
-        'speed_kmh': speedKmh,
-        'heading': heading,
-        'recorded_at': recordedAt,
-      };
+    'id': id,
+    'trip_id': tripId,
+    'latitude': latitude,
+    'longitude': longitude,
+    'speed_kmh': speedKmh,
+    'heading': heading,
+    'recorded_at': recordedAt,
+  };
 }

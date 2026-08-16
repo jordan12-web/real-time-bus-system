@@ -23,28 +23,38 @@ class Trip {
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       id: json['id']?.toString() ?? '',
-      routeId: json['route_id']?.toString() ?? '',
-      vehicleId: json['vehicle_id']?.toString() ?? '',
-      driverId: json['driver_id']?.toString() ?? '',
+      routeId:
+          json['routeId']?.toString() ?? json['route_id']?.toString() ?? '',
+      vehicleId:
+          json['vehicleId']?.toString() ?? json['vehicle_id']?.toString() ?? '',
+      driverId:
+          json['driverId']?.toString() ?? json['driver_id']?.toString() ?? '',
       departureTime: DateTime.parse(
-        json['departure_time']?.toString() ?? DateTime.now().toIso8601String(),
+        json['departureTime']?.toString() ??
+            json['departure_time']?.toString() ??
+            DateTime.now().toIso8601String(),
       ),
       arrivalTime: DateTime.parse(
-        json['arrival_time']?.toString() ?? DateTime.now().toIso8601String(),
+        json['arrivalTime']?.toString() ??
+            json['arrival_time']?.toString() ??
+            DateTime.now().toIso8601String(),
       ),
-      pricePerSeat: (json['price_per_seat'] as num?)?.toDouble() ?? 0.0,
+      pricePerSeat:
+          (json['pricePerSeat'] as num? ?? json['price_per_seat'] as num?)
+              ?.toDouble() ??
+          0.0,
       status: json['status']?.toString() ?? 'scheduled',
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'route_id': routeId,
-        'vehicle_id': vehicleId,
-        'driver_id': driverId,
-        'departure_time': departureTime.toIso8601String(),
-        'arrival_time': arrivalTime.toIso8601String(),
-        'price_per_seat': pricePerSeat,
-        'status': status,
-      };
+    'id': id,
+    'route_id': routeId,
+    'vehicle_id': vehicleId,
+    'driver_id': driverId,
+    'departure_time': departureTime.toIso8601String(),
+    'arrival_time': arrivalTime.toIso8601String(),
+    'price_per_seat': pricePerSeat,
+    'status': status,
+  };
 }

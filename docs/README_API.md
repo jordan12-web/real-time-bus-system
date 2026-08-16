@@ -1,6 +1,6 @@
 # Real-Time Bus Reservation System — API Runbook & Testing Guide
 
-This guide provides operational instructions for running the backend locally, executing API test suites via Postman and Newman, simulating Chapa payment webhooks, and managing secrets.
+This guide provides operational instructions for running the backend locally, executing API test suites via Postman and Newman, seeding test database data, simulating Chapa payment webhooks, and managing secrets.
 
 ---
 
@@ -35,7 +35,23 @@ The server will connect to MongoDB and start listening on `http://localhost:3000
 
 ---
 
-## 2. Running Postman Collection & Environment
+## 2. Seeding Test Database Data
+
+To populate MongoDB with test passenger, driver, admin accounts, a scheduled trip, pending booking, and payment reference for frontend testing:
+
+```bash
+cd backend
+node ../scripts/seed_test_data.js
+```
+
+### Test User Accounts (Password for all: `Password123!`):
+- **Passenger**: `passenger.test@example.com`
+- **Driver**: `driver.test@example.com`
+- **Admin**: `admin.test@example.com`
+
+---
+
+## 3. Running Postman Collection & Environment
 
 1. Open Postman.
 2. Click **Import** and select:
@@ -47,7 +63,7 @@ The server will connect to MongoDB and start listening on `http://localhost:3000
 
 ---
 
-## 3. Simulating Chapa Payment Webhooks
+## 4. Simulating Chapa Payment Webhooks
 
 Chapa sends a JSON payload to `/payments/webhook` upon payment completion. The backend verifies the transaction via Chapa's official API (`GET /v1/transaction/verify/:tx_ref`) using `CHAPA_SECRET_KEY` before confirming the booking.
 
@@ -65,7 +81,7 @@ curl -X POST http://localhost:3000/payments/webhook \
 
 ---
 
-## 4. Running Automated Smoke Tests via Newman
+## 5. Running Automated Smoke Tests via Newman
 
 You can run automated smoke tests across all endpoints locally using `newman`:
 
@@ -75,7 +91,7 @@ npx newman run docs/postman_collection.json -e docs/postman_environment.json
 
 ---
 
-## 5. API Key Management & Secret Rotation Process
+## 6. API Key Management & Secret Rotation Process
 
 1. **Environment Isolation**: Secrets (`JWT_SECRET`, `CHAPA_SECRET_KEY`) must never be hardcoded into source control.
 2. **Secret Rotation Note**:

@@ -40,10 +40,7 @@ class AuthRepository {
     return User.fromJson(response['user'] as Map<String, dynamic>);
   }
 
-  Future<User> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<User> login({required String email, required String password}) async {
     final response = await _service.login(email: email, password: password);
     await _persistTokens(response);
     return User.fromJson(response['user'] as Map<String, dynamic>);

@@ -7,7 +7,7 @@ plugins {
 
 android {
    namespace = "com.example.passenger_app"
-    compileSdk = 37 // Change this from 37 to 34
+    compileSdk = 36 // Change this from 37 to 34
     ndkVersion = "28.2.13676358" // Required by jni plugin
 
     compileOptions {

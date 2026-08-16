@@ -1,0 +1,129 @@
+{
+  "signup": {
+    "request": {
+      "full_name": "Abebe Bikila",
+      "email": "abebe@example.com",
+      "password": "Password123!",
+      "phone_number": "+251911121314"
+    },
+    "response": {
+      "user": {
+        "id": "64f1a2b3c4d5e6f7a8b9c0d0",
+        "full_name": "Abebe Bikila",
+        "email": "abebe@example.com",
+        "phone_number": "+251911121314",
+        "role": "passenger",
+        "created_at": "2026-08-15T00:00:00.000Z",
+        "updated_at": "2026-08-15T00:00:00.000Z"
+      },
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+  },
+  "login": {
+    "request": {
+      "email": "abebe@example.com",
+      "password": "Password123!"
+    },
+    "response": {
+      "user": {
+        "id": "64f1a2b3c4d5e6f7a8b9c0d0",
+        "full_name": "Abebe Bikila",
+        "email": "abebe@example.com",
+        "role": "passenger"
+      },
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+  },
+  "createBooking": {
+    "request": {
+      "trip_id": "64f1a2b3c4d5e6f7a8b9c0d2"
+    },
+    "response": {
+      "id": "64f1a2b3c4d5e6f7a8b9c0d3",
+      "user_id": "64f1a2b3c4d5e6f7a8b9c0d0",
+      "trip_id": "64f1a2b3c4d5e6f7a8b9c0d2",
+      "status": "pending",
+      "total_amount": 350.00,
+      "currency": "ETB",
+      "hold_expires_at": "2026-08-15T00:15:00.000Z",
+      "created_at": "2026-08-15T00:00:00.000Z",
+      "updated_at": "2026-08-15T00:00:00.000Z"
+    }
+  },
+  "initiatePayment": {
+    "request": {
+      "bookingId": "64f1a2b3c4d5e6f7a8b9c0d3",
+      "return_url": "http://localhost:3000/payments/success"
+    },
+    "response": {
+      "checkout_url": "https://checkout.chapa.co/checkout/payment/1234567890",
+      "payment": {
+        "id": "64f1a2b3c4d5e6f7a8b9c0d4",
+        "booking_id": "64f1a2b3c4d5e6f7a8b9c0d3",
+        "amount": 350.00,
+        "currency": "ETB",
+        "status": "pending",
+        "chapa_tx_ref": "tx-64f1a2b3c4d5e6f7a8b9c0d3-1770651500000",
+        "chapa_checkout_url": "https://checkout.chapa.co/checkout/payment/1234567890"
+      }
+    }
+  },
+  "webhookSimulation": {
+    "request": {
+      "event": "charge.success",
+      "tx_ref": "tx-64f1a2b3c4d5e6f7a8b9c0d3-1770651500000",
+      "status": "success"
+    },
+    "response": {
+      "received": true
+    }
+  },
+  "generateTicket": {
+    "request": {},
+    "response": {
+      "ticket": {
+        "id": "64f1a2b3c4d5e6f7a8b9c0d5",
+        "booking_id": "64f1a2b3c4d5e6f7a8b9c0d3",
+        "qr_code_data": "eyJ0IjoiNjRmMWEyYjNjNGQ1ZTZmN2E4YjljMGQ1Iiw...==",
+        "qr_code_image_url": "/uploads/tickets/64f1a2b3c4d5e6f7a8b9c0d5.png",
+        "status": "issued",
+        "issued_at": "2026-08-15T00:05:00.000Z"
+      },
+      "qr_code_image_url": "/uploads/tickets/64f1a2b3c4d5e6f7a8b9c0d5.png",
+      "qr_code_data": "eyJ0IjoiNjRmMWEyYjNjNGQ1ZTZmN2E4YjljMGQ1Iiw...=="
+    }
+  },
+  "validateTicket": {
+    "request": {
+      "qr_code_data": "eyJ0IjoiNjRmMWEyYjNjNGQ1ZTZmN2E4YjljMGQ1Iiw...=="
+    },
+    "response": {
+      "valid": true,
+      "ticket": {
+        "id": "64f1a2b3c4d5e6f7a8b9c0d5",
+        "status": "used",
+        "used_at": "2026-08-15T00:10:00.000Z"
+      }
+    }
+  },
+  "reportTracking": {
+    "request": {
+      "tripId": "64f1a2b3c4d5e6f7a8b9c0d2",
+      "latitude": 9.0222,
+      "longitude": 38.7468,
+      "speed_kmh": 65.0,
+      "heading": 180
+    },
+    "response": {
+      "id": "64f1a2b3c4d5e6f7a8b9c0d6",
+      "trip_id": "64f1a2b3c4d5e6f7a8b9c0d2",
+      "latitude": 9.0222,
+      "longitude": 38.7468,
+      "speed_kmh": 65.0,
+      "heading": 180,
+      "recorded_at": "2026-08-15T00:12:00.000Z"
+    }
+  }
+}

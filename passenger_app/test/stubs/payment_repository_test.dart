@@ -16,21 +16,24 @@ void main() {
       repository = PaymentRepository(mockService);
     });
 
-    test('TODO: returns cached pending payment without second API call', () async {
-      // TODO: stub initiatePayment once, call repository twice, verify
-      // mockService.initiatePayment called only once for same bookingId.
-      const pending = Payment(
-        id: 'pay-1',
-        bookingId: 'booking-1',
-        amount: 350,
-        currency: 'ETB',
-        status: 'pending',
-        chapaTxRef: 'tx-ref',
-        chapaCheckoutUrl: 'https://checkout.example',
-      );
-      expect(pending.status, 'pending');
-      expect(repository, isNotNull);
-    });
+    test(
+      'TODO: returns cached pending payment without second API call',
+      () async {
+        // TODO: stub initiatePayment once, call repository twice, verify
+        // mockService.initiatePayment called only once for same bookingId.
+        const pending = Payment(
+          id: 'pay-1',
+          bookingId: 'booking-1',
+          amount: 350,
+          currency: 'ETB',
+          status: 'pending',
+          chapaTxRef: 'tx-ref',
+          chapaCheckoutUrl: 'https://checkout.example',
+        );
+        expect(pending.status, 'pending');
+        expect(repository, isNotNull);
+      },
+    );
 
     test('TODO: re-initiates when cached payment is not pending', () async {
       // TODO: seed cache with success payment and assert new initiate call.

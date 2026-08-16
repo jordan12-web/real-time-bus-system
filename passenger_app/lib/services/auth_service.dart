@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../core/api/dio_client.dart';
+import '../core/json_adapter.dart';
 
 /// Auth API client — mirrors OpenAPI `/auth/*` paths.
 class AuthService {
@@ -26,7 +27,7 @@ class AuthService {
           },
         ),
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }
@@ -40,13 +41,10 @@ class AuthService {
       final response = await _client.sendWithRetry(
         () => _client.dio.post<Map<String, dynamic>>(
           '/auth/login',
-          data: {
-            'email': email,
-            'password': password,
-          },
+          data: {'email': email, 'password': password},
         ),
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }
@@ -58,7 +56,7 @@ class AuthService {
         '/auth/refresh',
         data: {'refreshToken': refreshToken},
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }
@@ -69,7 +67,7 @@ class AuthService {
       final response = await _client.sendWithRetry(
         () => _client.dio.get<Map<String, dynamic>>('/auth/me'),
       );
-      return response.data ?? {};
+      return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }

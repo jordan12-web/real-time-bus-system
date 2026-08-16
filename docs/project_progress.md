@@ -63,3 +63,11 @@
 [Done] Monitoring, logging & alerting architecture (`docs/monitoring.md`)
 [Done] Sentry configuration snippet (`backend/src/config/sentry.js`)
 [Done] Emergency code rollback & database restoration runbook (`docs/rollback.md`)
+
+## Task 5 — Frontend Handoff Checklist & Integration
+[Done] Comprehensive Frontend Integration & Handoff Guide (`docs/frontend_handoff.md`)
+[Done] Flutter Auth & Token Refresh Snippet (`docs/snippets/flutter_auth.md`)
+[Done] Flutter Payment & Chapa Launcher Snippet (`docs/snippets/flutter_payment.md`)
+[Done] Flutter QR Ticket & Driver Validation Snippet (`docs/snippets/flutter_qr.md`)
+[Done] Automated Database Test Data Seeding Script (`scripts/seed_test_data.js`)
+[Done] Mock Contract Payload Dictionary (`docs/api_contract_examples.json`)

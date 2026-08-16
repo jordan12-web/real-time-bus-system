@@ -23,24 +23,31 @@ class Ticket {
   factory Ticket.fromJson(Map<String, dynamic> json) {
     return Ticket(
       id: json['id']?.toString() ?? '',
-      bookingId: json['booking_id']?.toString() ?? '',
-      qrCodeData: json['qr_code_data']?.toString() ?? '',
-      qrCodeImageUrl: json['qr_code_image_url']?.toString(),
+      bookingId:
+          json['bookingId']?.toString() ?? json['booking_id']?.toString() ?? '',
+      qrCodeData:
+          json['qrCodeData']?.toString() ??
+          json['qr_code_data']?.toString() ??
+          '',
+      qrCodeImageUrl:
+          json['qrCodeImageUrl']?.toString() ??
+          json['qr_code_image_url']?.toString(),
       status: json['status']?.toString() ?? 'issued',
-      issuedAt: json['issued_at']?.toString(),
-      usedAt: json['used_at']?.toString(),
-      revokedAt: json['revoked_at']?.toString(),
+      issuedAt: json['issuedAt']?.toString() ?? json['issued_at']?.toString(),
+      usedAt: json['usedAt']?.toString() ?? json['used_at']?.toString(),
+      revokedAt:
+          json['revokedAt']?.toString() ?? json['revoked_at']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'booking_id': bookingId,
-        'qr_code_data': qrCodeData,
-        'qr_code_image_url': qrCodeImageUrl,
-        'status': status,
-        'issued_at': issuedAt,
-        'used_at': usedAt,
-        'revoked_at': revokedAt,
-      };
+    'id': id,
+    'booking_id': bookingId,
+    'qr_code_data': qrCodeData,
+    'qr_code_image_url': qrCodeImageUrl,
+    'status': status,
+    'issued_at': issuedAt,
+    'used_at': usedAt,
+    'revoked_at': revokedAt,
+  };
 }
