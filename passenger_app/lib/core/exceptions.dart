@@ -1,4 +1,4 @@
-/// API-layer exception used across services and repositories.
+
 class ApiException implements Exception {
   final String message;
   final int? statusCode;

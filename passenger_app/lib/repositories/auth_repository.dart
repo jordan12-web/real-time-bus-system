@@ -5,7 +5,7 @@ import '../core/exceptions.dart';
 import '../models/user.dart';
 import '../services/auth_service.dart';
 
-/// Persists JWT tokens and exposes auth operations to controllers.
+
 class AuthRepository {
   static const _accessTokenKey = 'accessToken';
   static const _refreshTokenKey = 'refreshToken';
@@ -60,7 +60,7 @@ class AuthRepository {
 
   Future<String?> getRefreshToken() => _storage.read(key: _refreshTokenKey);
 
-  /// Refreshes tokens once; returns `true` when a new access token is stored.
+  
   Future<bool> refresh() async {
     final refreshToken = await getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {

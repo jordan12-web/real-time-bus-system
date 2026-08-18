@@ -7,7 +7,7 @@ import '../../utils/retry.dart';
 typedef TokenRefreshCallback = Future<bool> Function();
 typedef AccessTokenProvider = Future<String?> Function();
 
-/// Shared Dio client with auth, retry, and error mapping.
+// shared Dio client with auth, retry, and error mapping
 class DioClient {
   late final Dio _dio;
   AccessTokenProvider? getAccessToken;
@@ -123,7 +123,7 @@ class DioClient {
       message = 'Connection timed out. Please check your network connection.';
     } else if (error.type == DioExceptionType.connectionError) {
       message =
-          'Unable to connect to server. Please ensure backend is running.';
+          'Unable to connect to server.';
     }
 
     return ApiException(message, statusCode: statusCode);

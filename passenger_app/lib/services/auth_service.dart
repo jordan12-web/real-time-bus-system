@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import '../core/api/dio_client.dart';
 import '../core/json_adapter.dart';
 
-/// Auth API client — mirrors OpenAPI `/auth/*` paths.
+
 class AuthService {
   final DioClient _client;
 

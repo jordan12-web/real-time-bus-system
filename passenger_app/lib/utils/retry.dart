@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-/// Runs [action] with exponential backoff on retryable failures.
-///
-/// [shouldRetry] receives the attempt index (0-based) and the thrown error.
+
 Future<T> retryWithBackoff<T>({
   required Future<T> Function() action,
   int maxAttempts = 3,
