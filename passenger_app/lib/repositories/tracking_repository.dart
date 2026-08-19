@@ -1,27 +1,11 @@
 import '../models/trip_location.dart';
 import '../services/tracking_service.dart';
 
-/// Thin wrapper around [TrackingService].
+/// Thin wrapper around [TrackingService] for Passenger App.
 class TrackingRepository {
   final TrackingService _service;
 
   TrackingRepository(this._service);
-
-  Future<TripLocation> reportLocation({
-    required String tripId,
-    required double latitude,
-    required double longitude,
-    double? speedKmh,
-    double? heading,
-  }) {
-    return _service.reportLocation(
-      tripId: tripId,
-      latitude: latitude,
-      longitude: longitude,
-      speedKmh: speedKmh,
-      heading: heading,
-    );
-  }
 
   Future<List<TripLocation>> getRecentLocations(
     String tripId, {

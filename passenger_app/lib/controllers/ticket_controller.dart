@@ -34,9 +34,7 @@ class TicketController extends StateNotifier<TicketState> {
 
   TicketController(this._repository) : super(const TicketState());
 
-  /// Idempotency lives in TicketRepository.generateTicket — calling this
-  /// again for an already-issued booking returns the cached ticket instead
-  /// of generating a second one.
+ 
   Future<bool> generateTicket(String bookingId) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {

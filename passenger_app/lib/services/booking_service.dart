@@ -9,13 +9,17 @@ class BookingService {
 
   BookingService(this._client);
 
-  Future<Map<String, dynamic>> createBooking(String tripId) async {
+  Future<Map<String, dynamic>> createBooking(String tripId, {String? seatNumber}) async {
     try {
+      final data = <String, dynamic>{'trip_id': tripId};
+      if (seatNumber != null && seatNumber.isNotEmpty) {
+        data['seat_number'] = seatNumber;
+      }
+
       final response = await _client.sendWithRetry(
         () => _client.dio.post<Map<String, dynamic>>(
           '/bookings',
-          // The backend contract for this endpoint explicitly expects snake_case.
-          data: {'trip_id': tripId},
+          data: data,
         ),
       );
       return normalizeKeys(response.data ?? {});

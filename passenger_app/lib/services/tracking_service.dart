@@ -10,7 +10,7 @@ import '../core/exceptions.dart';
 import '../core/json_adapter.dart';
 import '../models/trip_location.dart';
 
-/// Tracking API client — mirrors OpenAPI `/tracking/*` paths.
+
 class TrackingService {
   final DioClient _client;
   final Future<String?> Function()? _accessTokenProvider;
@@ -19,32 +19,6 @@ class TrackingService {
     this._client, {
     Future<String?> Function()? accessTokenProvider,
   }) : _accessTokenProvider = accessTokenProvider;
-
-  Future<TripLocation> reportLocation({
-    required String tripId,
-    required double latitude,
-    required double longitude,
-    double? speedKmh,
-    double? heading,
-  }) async {
-    try {
-      final response = await _client.sendWithRetry(
-        () => _client.dio.post<Map<String, dynamic>>(
-          '/tracking/report',
-          data: {
-            'tripId': tripId,
-            'latitude': latitude,
-            'longitude': longitude,
-            'speed_kmh': ?speedKmh,
-            'heading': ?heading,
-          },
-        ),
-      );
-      return TripLocation.fromJson(normalizeKeys(response.data ?? {}));
-    } on DioException catch (error) {
-      throw _client.handleDioError(error);
-    }
-  }
 
   Future<List<TripLocation>> getRecentLocations(
     String tripId, {
@@ -70,7 +44,7 @@ class TrackingService {
     }
   }
 
-  /// Subscribes to `GET /tracking/{tripId}/stream` SSE updates.
+  
   Stream<TripLocation> subscribeSse(String tripId) async* {
     final provider = _accessTokenProvider;
     final token = provider != null ? await provider() : null;

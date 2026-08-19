@@ -44,9 +44,7 @@ class PaymentController extends StateNotifier<PaymentState> {
 
   PaymentController(this._repository) : super(const PaymentState());
 
-  /// Idempotency itself lives in PaymentRepository.initiatePayment — calling
-  /// this twice for the same bookingId returns the cached pending result
-  /// instead of opening a second Chapa checkout.
+  
   Future<PaymentInitiationResult?> initiatePayment({
     required String bookingId,
     String? returnUrl,
@@ -72,9 +70,7 @@ class PaymentController extends StateNotifier<PaymentState> {
     }
   }
 
-  /// Polls GET /payments/{id} until status leaves 'pending' or attempts run
-  /// out. Call after the user completes checkout in the browser/WebView
-  /// opened from initiatePayment's checkoutUrl.
+  
   Future<Payment?> pollPaymentStatus(
     String paymentId, {
     Duration interval = const Duration(seconds: 3),

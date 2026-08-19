@@ -1,7 +1,7 @@
 import Booking from '../models/Booking.js';
 import Trip from '../models/Trip.js';
 
-export const createBooking = async ({ user_id, trip_id }) => {
+export const createBooking = async ({ user_id, trip_id, seat_number }) => {
   const trip = await Trip.findById(trip_id);
   if (!trip) {
     const error = new Error('Trip not found');
@@ -15,21 +15,36 @@ export const createBooking = async ({ user_id, trip_id }) => {
     throw error;
   }
 
-  const existingBooking = await Booking.findOne({
+  const existingUserBooking = await Booking.findOne({
     user_id,
     trip_id,
     status: { $in: ['pending', 'confirmed'] }
   });
 
-  if (existingBooking) {
+  if (existingUserBooking) {
     const error = new Error('You already have an active booking for this trip');
     error.statusCode = 400;
     throw error;
   }
 
+  if (seat_number) {
+    const existingSeatBooking = await Booking.findOne({
+      trip_id,
+      seat_number,
+      status: { $in: ['pending', 'confirmed'] }
+    });
+
+    if (existingSeatBooking) {
+      const error = new Error(`Seat ${seat_number} is already reserved for this trip`);
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
   const booking = await Booking.create({
     user_id,
     trip_id,
+    seat_number: seat_number || null,
     total_amount: trip.price_per_seat,
     currency: 'ETB',
     status: 'pending',

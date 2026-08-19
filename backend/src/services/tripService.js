@@ -2,6 +2,8 @@ import Trip from '../models/Trip.js';
 
 export const createTrip = async ({
   route_id,
+  origin = 'Addis Ababa',
+  destination = 'Hawassa',
   vehicle_id,
   driver_id,
   departure_time,
@@ -10,6 +12,8 @@ export const createTrip = async ({
 }) => {
   const trip = await Trip.create({
     route_id,
+    origin,
+    destination,
     vehicle_id,
     driver_id,
     departure_time: new Date(departure_time),
@@ -19,8 +23,19 @@ export const createTrip = async ({
   return trip.toJSON();
 };
 
-export const getAllTrips = async () => {
-  const trips = await Trip.find().sort({ departure_time: 1 });
+export const getAllTrips = async (filter = {}) => {
+  const query = {};
+  if (filter.origin) {
+    query.origin = { $regex: filter.origin, $options: 'i' };
+  }
+  if (filter.destination) {
+    query.destination = { $regex: filter.destination, $options: 'i' };
+  }
+  if (filter.time) {
+    query.departure_time = { $gte: new Date(filter.time) };
+  }
+
+  const trips = await Trip.find(query).sort({ departure_time: 1 });
   return trips.map((t) => t.toJSON());
 };
 

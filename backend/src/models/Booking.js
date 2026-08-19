@@ -12,6 +12,10 @@ const bookingSchema = new mongoose.Schema(
       ref: 'Trip',
       required: true
     },
+    seat_number: {
+      type: String,
+      trim: true
+    },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'cancelled', 'expired'],

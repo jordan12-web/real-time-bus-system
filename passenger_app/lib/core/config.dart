@@ -13,7 +13,7 @@ class Config {
   static String get apiBaseUrl =>
       _env['API_BASE_URL'] ?? 'http://localhost:3000';
 
-  /// SSE stream base URL — defaults to API base for local dev.
+  
   static String get sseUrl =>
       _env['SSE_URL'] ?? _env['SSE_BASE_URL'] ?? apiBaseUrl;
 }

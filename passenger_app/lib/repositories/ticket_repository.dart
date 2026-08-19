@@ -1,7 +1,6 @@
 import '../models/ticket.dart';
 import '../services/ticket_service.dart';
 
-/// Result of `POST /tickets/{bookingId}/generate`.
 class TicketGenerationResult {
   final Ticket ticket;
   final String? qrCodeImageUrl;
@@ -14,7 +13,6 @@ class TicketGenerationResult {
   });
 }
 
-/// Idempotent ticket generation for confirmed bookings.
 class TicketRepository {
   final TicketService _service;
   final Map<String, TicketGenerationResult> _issuedByBooking = {};
@@ -40,17 +38,5 @@ class TicketRepository {
     }
 
     return result;
-  }
-
-  Future<Map<String, dynamic>> validateTicket(String qrCodeData) {
-    return _service.validateTicket(qrCodeData);
-  }
-
-  Future<Ticket> revokeTicket(String id) async {
-    final raw = await _service.revokeTicket(id);
-    if (raw['ticket'] is Map<String, dynamic>) {
-      return Ticket.fromJson(raw['ticket'] as Map<String, dynamic>);
-    }
-    return Ticket.fromJson(raw);
   }
 }

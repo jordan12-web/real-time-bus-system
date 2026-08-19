@@ -2,6 +2,8 @@
 class Trip {
   final String id;
   final String routeId;
+  final String origin;
+  final String destination;
   final String vehicleId;
   final String driverId;
   final DateTime departureTime;
@@ -12,6 +14,8 @@ class Trip {
   const Trip({
     required this.id,
     required this.routeId,
+    required this.origin,
+    required this.destination,
     required this.vehicleId,
     required this.driverId,
     required this.departureTime,
@@ -25,6 +29,8 @@ class Trip {
       id: json['id']?.toString() ?? '',
       routeId:
           json['routeId']?.toString() ?? json['route_id']?.toString() ?? '',
+      origin: json['origin']?.toString() ?? 'Addis Ababa',
+      destination: json['destination']?.toString() ?? 'Hawassa',
       vehicleId:
           json['vehicleId']?.toString() ?? json['vehicle_id']?.toString() ?? '',
       driverId:
@@ -50,6 +56,8 @@ class Trip {
   Map<String, dynamic> toJson() => {
     'id': id,
     'route_id': routeId,
+    'origin': origin,
+    'destination': destination,
     'vehicle_id': vehicleId,
     'driver_id': driverId,
     'departure_time': departureTime.toIso8601String(),

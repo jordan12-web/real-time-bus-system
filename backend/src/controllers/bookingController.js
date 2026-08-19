@@ -2,12 +2,12 @@ import { createBooking, getBookingById, cancelBooking } from '../services/bookin
 
 export const postBooking = async (req, res, next) => {
   try {
-    const { trip_id } = req.body;
+    const { trip_id, seat_number } = req.body;
     if (!trip_id) {
       return res.status(400).json({ error: 'trip_id is required' });
     }
 
-    const booking = await createBooking({ user_id: req.user.id, trip_id });
+    const booking = await createBooking({ user_id: req.user.id, trip_id, seat_number });
     return res.status(201).json(booking);
   } catch (error) {
     next(error);

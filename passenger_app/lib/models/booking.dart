@@ -3,6 +3,7 @@ class Booking {
   final String id;
   final String userId;
   final String tripId;
+  final String? seatNumber;
   final String status;
   final double totalAmount;
   final String currency;
@@ -12,6 +13,7 @@ class Booking {
     required this.id,
     required this.userId,
     required this.tripId,
+    this.seatNumber,
     required this.status,
     required this.totalAmount,
     required this.currency,
@@ -23,6 +25,7 @@ class Booking {
       id: json['id']?.toString() ?? json['bookingId']?.toString() ?? '',
       userId: json['userId']?.toString() ?? json['user_id']?.toString() ?? '',
       tripId: json['tripId']?.toString() ?? json['trip_id']?.toString() ?? '',
+      seatNumber: json['seatNumber']?.toString() ?? json['seat_number']?.toString(),
       status: json['status']?.toString() ?? 'pending',
       totalAmount:
           (json['totalAmount'] as num? ?? json['total_amount'] as num?)
@@ -39,6 +42,7 @@ class Booking {
     'id': id,
     'user_id': userId,
     'trip_id': tripId,
+    if (seatNumber != null) 'seat_number': seatNumber,
     'status': status,
     'total_amount': totalAmount,
     'currency': currency,

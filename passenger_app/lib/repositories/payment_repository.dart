@@ -1,7 +1,6 @@
 import '../models/payment.dart';
 import '../services/payment_service.dart';
 
-/// Result of `POST /payments/initiate`.
 class PaymentInitiationResult {
   final String checkoutUrl;
   final Payment payment;
@@ -12,7 +11,6 @@ class PaymentInitiationResult {
   });
 }
 
-/// Idempotent payment initiation for a booking.
 class PaymentRepository {
   final PaymentService _service;
   final Map<String, PaymentInitiationResult> _pendingByBooking = {};

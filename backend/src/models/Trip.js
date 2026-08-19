@@ -7,6 +7,18 @@ const tripSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    origin: {
+      type: String,
+      required: true,
+      trim: true,
+      default: 'Addis Ababa'
+    },
+    destination: {
+      type: String,
+      required: true,
+      trim: true,
+      default: 'Hawassa'
+    },
     vehicle_id: {
       type: String,
       required: true,

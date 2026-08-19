@@ -147,6 +147,24 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  Future<bool> signup(String fullName,String email,String password,String? phoneNumber,) async{
+    state = state.copyWith(isLoading: true, clearError: true);
+    try{
+      final user = await _repository.signup(fullName: fullName, email: email, password: password);
+     state = state.copyWith(isLoading: false, user: user);
+     return true;
+
+    } on ApiException catch (error){
+      state = state.copyWith(isLoading: false, errorMessage: error.message);
+      return false;
+    } catch(error){
+      state = state.copyWith(isLoading: false, errorMessage: error.toString());
+      return false;
+    }
+
+    }
+
+
   Future<void> logout() async {
     await _repository.logout();
     state = const AuthState();
