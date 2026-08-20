@@ -72,9 +72,8 @@ class _MyTripsScreenState extends ConsumerState<MyTripsScreen> {
           }
 
           return RefreshIndicator(
-            onRefresh: () => ref
-                .read(myBookingsControllerProvider.notifier)
-                .loadMyBookings(),
+            onRefresh: () =>
+                ref.read(myBookingsControllerProvider.notifier).loadMyBookings(),
             child: ListView.builder(
               key: const Key('my_trips_list'),
               itemCount: state.bookings.length,
@@ -92,10 +91,8 @@ class _MyTripsScreenState extends ConsumerState<MyTripsScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Trip ${booking.tripId}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              'Booking',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Chip(
                               label: Text(
@@ -104,8 +101,7 @@ class _MyTripsScreenState extends ConsumerState<MyTripsScreen> {
                               ),
                               backgroundColor: _statusColor(booking.status),
                               padding: EdgeInsets.zero,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ],
                         ),
@@ -121,10 +117,7 @@ class _MyTripsScreenState extends ConsumerState<MyTripsScreen> {
                             child: OutlinedButton(
                               key: Key('pay_now_${booking.id}'),
                               onPressed: () {
-                                AppRoutes.navigateToPayment(
-                                  context,
-                                  booking.id,
-                                );
+                                AppRoutes.navigateToPayment(context, booking.id);
                               },
                               child: const Text('Pay Now'),
                             ),

@@ -61,6 +61,8 @@ export const initiatePayment = async ({ bookingId, userId, return_url }) => {
     chapa_tx_ref
   });
 
+  const backendBaseUrl = process.env.BACKEND_BASE_URL || 'https://real-time-bus-system.onrender.com';
+
   const chapaPayload = {
     amount: booking.total_amount.toString(),
     currency: booking.currency || 'ETB',
@@ -69,6 +71,7 @@ export const initiatePayment = async ({ bookingId, userId, return_url }) => {
     last_name,
     tx_ref: chapa_tx_ref,
     return_url: return_url || 'http://localhost:3000/payments/success',
+    callback_url: `${backendBaseUrl}/payments/webhook`,
     customization: {
       title: 'Bus Ticket',
       description: `Payment for booking ${bookingId}`

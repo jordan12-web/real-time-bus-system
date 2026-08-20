@@ -50,5 +50,5 @@ class MyBookingsController extends StateNotifier<MyBookingsState> {
 
 final myBookingsControllerProvider =
     StateNotifierProvider<MyBookingsController, MyBookingsState>((ref) {
-      return MyBookingsController(ref.watch(bookingRepositoryProvider));
-    });
+  return MyBookingsController(ref.watch(bookingRepositoryProvider));
+});

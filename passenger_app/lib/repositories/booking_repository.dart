@@ -19,18 +19,13 @@ class BookingRepository {
 
     final seatKey = '$tripId-${seatNumber ?? "default"}';
     if (seatNumber != null && _pendingSeats.contains(seatKey)) {
-      throw ApiException(
-        'Seat $seatNumber is currently reserved in another pending booking flow',
-      );
+      throw ApiException('Seat $seatNumber is currently reserved in another pending booking flow');
     }
 
     _pendingSeats.add(seatKey);
 
     try {
-      final raw = await _bookingService.createBooking(
-        tripId,
-        seatNumber: seatNumber,
-      );
+      final raw = await _bookingService.createBooking(tripId, seatNumber: seatNumber);
       final booking = Booking.fromJson(raw);
       if (booking.tripId != tripId) {
         throw ApiException('Booking trip mismatch — possible double-booking');

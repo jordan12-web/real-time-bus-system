@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../widgets/app_scaffold.dart';
-
 /// Displays the Chapa checkout page inside the app via WebView, instead of
 /// handing off to an external browser. Pops itself with `true` once the
 /// page navigates to a URL containing [returnUrlMarker] (Chapa's return_url
 /// after a completed/cancelled attempt), so the caller can trigger a
 /// payment-status poll immediately instead of waiting on a fixed interval.
+///
+/// Deliberately uses a plain Scaffold (not the shared AppScaffold) — that
+/// widget wraps its child in 16px of padding on every side, which is right
+/// for forms/text but leaves a WebView floating in a boxed-in area in the
+/// middle of the screen instead of filling it edge-to-edge.
 class ChapaCheckoutScreen extends StatefulWidget {
   final String checkoutUrl;
 
   const ChapaCheckoutScreen({super.key, required this.checkoutUrl});
 
-  /// Matches the return_url your backend sends to Chapa
-  /// (see paymentService.js: 'http://localhost:3000/payments/success' by
-  /// default, or PAYMENT_RETURN_URL if you've configured one).
   static const String returnUrlMarker = '/payments/success';
 
   @override
@@ -54,24 +54,26 @@ class _ChapaCheckoutScreenState extends State<ChapaCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      title: 'Complete Payment',
-      child: Stack(
-        children: [
-          WebViewWidget(controller: _controller),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-          if (_loadError != null)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Could not load the payment page: $_loadError',
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
+    return Scaffold(
+      appBar: AppBar(title: const Text('Complete Payment')),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(child: WebViewWidget(controller: _controller)),
+            if (_isLoading) const Center(child: CircularProgressIndicator()),
+            if (_loadError != null)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Could not load the payment page: $_loadError',
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
