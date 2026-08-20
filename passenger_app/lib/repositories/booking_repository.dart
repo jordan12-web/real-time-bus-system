@@ -19,13 +19,18 @@ class BookingRepository {
 
     final seatKey = '$tripId-${seatNumber ?? "default"}';
     if (seatNumber != null && _pendingSeats.contains(seatKey)) {
-      throw ApiException('Seat $seatNumber is currently reserved in another pending booking flow');
+      throw ApiException(
+        'Seat $seatNumber is currently reserved in another pending booking flow',
+      );
     }
 
     _pendingSeats.add(seatKey);
 
     try {
-      final raw = await _bookingService.createBooking(tripId, seatNumber: seatNumber);
+      final raw = await _bookingService.createBooking(
+        tripId,
+        seatNumber: seatNumber,
+      );
       final booking = Booking.fromJson(raw);
       if (booking.tripId != tripId) {
         throw ApiException('Booking trip mismatch — possible double-booking');
@@ -36,7 +41,7 @@ class BookingRepository {
       if (error.statusCode == 400) {
         throw ApiException(
           'Unable to create booking: ${error.message}. '
-          'You may already have an active booking or the selected seat is unavailable.',
+          'Check My Trips to complete payment on an existing booking.',
           statusCode: error.statusCode,
         );
       }
@@ -55,5 +60,12 @@ class BookingRepository {
   Future<Booking> cancelBooking(String id) async {
     final raw = await _bookingService.cancelBooking(id);
     return Booking.fromJson(raw);
+  }
+
+  Future<List<Booking>> listMyBookings() async {
+    final rawList = await _bookingService.listMyBookings();
+    return rawList
+        .map((item) => Booking.fromJson(item as Map<String, dynamic>))
+        .toList();
   }
 }

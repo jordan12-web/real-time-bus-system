@@ -96,3 +96,8 @@ export const cancelBooking = async (id, userId, role) => {
 
   return booking.toJSON();
 };
+
+export const listBookingsForUser = async (userId) => {
+  const bookings = await Booking.find({ user_id: userId }).sort({ created_at: -1 });
+  return bookings.map((booking) => booking.toJSON());
+};

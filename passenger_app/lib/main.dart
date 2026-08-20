@@ -6,6 +6,7 @@ import 'package:passenger_app/screens/signup_screen.dart';
 import 'routes/app_routes.dart';
 import 'screens/booking_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/my_trips_screen.dart';
 import 'screens/payment_screen.dart';
 import 'screens/ticket_screen.dart';
 import 'screens/tracking_screen.dart';
@@ -55,6 +56,7 @@ class PassengerApp extends StatelessWidget {
         AppRoutes.payment: (context) => const PaymentScreen(),
         AppRoutes.ticket: (context) => const TicketScreen(),
         AppRoutes.tracking: (context) => const TrackingScreen(),
+        AppRoutes.myTrips: (context) => const MyTripsScreen(),
       },
     );
   }

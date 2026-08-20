@@ -47,6 +47,22 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
       title: 'Available Bus Trips',
       actions: [
         IconButton(
+          key: const Key('refresh_trips_button'),
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Refresh trips',
+          onPressed: () {
+            ref.read(tripControllerProvider.notifier).loadTrips(forceRefresh: true);
+          },
+        ),
+        IconButton(
+          key: const Key('my_trips_button'),
+          icon: const Icon(Icons.confirmation_number_outlined),
+          tooltip: 'My Trips',
+          onPressed: () {
+            AppRoutes.navigateToMyTrips(context);
+          },
+        ),
+        IconButton(
           key: const Key('logout_button'),
           icon: const Icon(Icons.logout),
           tooltip: 'Log out',

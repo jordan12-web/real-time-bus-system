@@ -66,14 +66,20 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       setState(() {
                         _selectedSeat = seatNum;
                       });
-                      ref.read(bookingControllerProvider.notifier).selectSeat(seatNum);
+                      ref
+                          .read(bookingControllerProvider.notifier)
+                          .selectSeat(seatNum);
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.deepPurple : Colors.deepPurple.shade50,
+                        color: isSelected
+                            ? Colors.deepPurple
+                            : Colors.deepPurple.shade50,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: isSelected ? Colors.deepPurple : Colors.deepPurple.shade200,
+                          color: isSelected
+                              ? Colors.deepPurple
+                              : Colors.deepPurple.shade200,
                           width: 2,
                         ),
                       ),
@@ -100,7 +106,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             if (_selectedSeat != null) ...[
               Text(
                 'Selected: $_selectedSeat',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
               ),
               const SizedBox(height: 8),
             ],
@@ -109,18 +118,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               text: 'Confirm Booking',
               isLoading: bookingState.isLoading,
               onPressed: () async {
-                final navigator = Navigator.of(context);
                 final success = await ref
                     .read(bookingControllerProvider.notifier)
                     .createBooking(trip.id, seatNumber: _selectedSeat);
 
-                if (success) {
+                if (success && mounted) {
                   final booking = ref.read(bookingControllerProvider).booking;
                   if (booking != null) {
-                    navigator.pushNamed(
-                      AppRoutes.payment,
-                      arguments: booking,
-                    );
+                    AppRoutes.navigateToPayment(context, booking.id);
                   }
                 }
               },

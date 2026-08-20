@@ -9,7 +9,10 @@ class BookingService {
 
   BookingService(this._client);
 
-  Future<Map<String, dynamic>> createBooking(String tripId, {String? seatNumber}) async {
+  Future<Map<String, dynamic>> createBooking(
+    String tripId, {
+    String? seatNumber,
+  }) async {
     try {
       final data = <String, dynamic>{'trip_id': tripId};
       if (seatNumber != null && seatNumber.isNotEmpty) {
@@ -17,10 +20,7 @@ class BookingService {
       }
 
       final response = await _client.sendWithRetry(
-        () => _client.dio.post<Map<String, dynamic>>(
-          '/bookings',
-          data: data,
-        ),
+        () => _client.dio.post<Map<String, dynamic>>('/bookings', data: data),
       );
       return normalizeKeys(response.data ?? {});
     } on DioException catch (error) {
@@ -45,6 +45,17 @@ class BookingService {
         () => _client.dio.delete<Map<String, dynamic>>('/bookings/$id'),
       );
       return normalizeKeys(response.data ?? {});
+    } on DioException catch (error) {
+      throw _client.handleDioError(error);
+    }
+  }
+
+  Future<List<dynamic>> listMyBookings() async {
+    try {
+      final response = await _client.sendWithRetry(
+        () => _client.dio.get<List<dynamic>>('/bookings'),
+      );
+      return normalizeJsonList(response.data ?? []);
     } on DioException catch (error) {
       throw _client.handleDioError(error);
     }

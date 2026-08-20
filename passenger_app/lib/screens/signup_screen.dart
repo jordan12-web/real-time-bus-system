@@ -34,10 +34,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       final success = await ref
           .read(authControllerProvider.notifier)
           .signup(
-            _emailController.text.trim(),
-            _passwordController.text,
-            _fullnameController.text,
-            _phonenumberController.text,
+             _fullnameController.text.trim(),
+             _emailController.text.trim(),
+             _passwordController.text,
+            _phonenumberController.text.trim(),
           );
       if (success && mounted) {
         AppRoutes.navigateToLogin(context);
