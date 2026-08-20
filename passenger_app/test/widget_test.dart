@@ -7,7 +7,9 @@ import 'package:passenger_app/main.dart';
 void main() {
   testWidgets('Verification screen renders login form', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: PassengerApp()));
-    await tester.pumpAndSettle();
+    // Use pump with a short duration rather than pumpAndSettle to avoid
+    // timing out on dotenv / async providers that never "settle".
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.byKey(const Key('login_email')), findsOneWidget);
     expect(find.byKey(const Key('login_password')), findsOneWidget);

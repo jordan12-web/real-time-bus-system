@@ -47,22 +47,6 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
       title: 'Available Bus Trips',
       actions: [
         IconButton(
-          key: const Key('refresh_trips_button'),
-          icon: const Icon(Icons.refresh),
-          tooltip: 'Refresh trips',
-          onPressed: () {
-            ref.read(tripControllerProvider.notifier).loadTrips(forceRefresh: true);
-          },
-        ),
-        IconButton(
-          key: const Key('my_trips_button'),
-          icon: const Icon(Icons.confirmation_number_outlined),
-          tooltip: 'My Trips',
-          onPressed: () {
-            AppRoutes.navigateToMyTrips(context);
-          },
-        ),
-        IconButton(
           key: const Key('logout_button'),
           icon: const Icon(Icons.logout),
           tooltip: 'Log out',
@@ -140,7 +124,7 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   subtitle: Text(
-                                    'Departure: ${trip.departureTime.toLocal().toString().split('.')[0]}\nRoute: ${trip.routeId}',
+                                    'Departure: ${trip.departureTime.toLocal().toString().split('.')[0]}',
                                   ),
                                   trailing: Text(
                                     '${trip.pricePerSeat.toStringAsFixed(2)} ETB',

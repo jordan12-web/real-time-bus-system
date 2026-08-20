@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../routes/app_routes.dart';
 import '../controllers/payment_controller.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/primary_button.dart';
+import 'chapa_checkout_screen.dart';
 
 /// Payment Screen handling initiation and status polling.
 class PaymentScreen extends ConsumerStatefulWidget {
@@ -24,19 +24,24 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     _bookingId ??= ModalRoute.of(context)?.settings.arguments as String?;
   }
 
-  // TODO: OpenAPI payment flow - in-app WebView fallback to launchUrl
   Future<void> _handleInitiatePayment() async {
     if (_bookingId == null) return;
     final result = await ref
         .read(paymentControllerProvider.notifier)
         .initiatePayment(bookingId: _bookingId!);
 
-    if (result != null && result.checkoutUrl.isNotEmpty) {
-      final uri = Uri.parse(result.checkoutUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (result != null && result.checkoutUrl.isNotEmpty && mounted) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ChapaCheckoutScreen(checkoutUrl: result.checkoutUrl),
+        ),
+      );
+      // Whether the WebView detected the return_url or the user just
+      // backed out manually, check the real status now rather than
+      // assuming — this is the source of truth, not the WebView nav event.
+      if (mounted) {
+        _startPolling(result.payment.id);
       }
-      _startPolling(result.payment.id);
     }
   }
 

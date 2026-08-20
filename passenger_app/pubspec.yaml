@@ -40,8 +40,11 @@ dependencies:
   url_launcher: ^6.3.2
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.4.0
-  eventsource: ^0.4.0
+
   flutter_dotenv: ^6.0.1
+  webview_flutter: ^4.10.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:

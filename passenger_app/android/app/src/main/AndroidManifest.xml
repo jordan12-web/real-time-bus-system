@@ -41,5 +41,13 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Required for url_launcher / webview_flutter to open https URLs
+             (e.g. the Chapa checkout page) on Android 11+ package-visibility
+             restrictions. Without this, canLaunchUrl() silently returns
+             false even though a browser is installed. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
     </queries>
 </manifest>

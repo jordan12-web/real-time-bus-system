@@ -39,10 +39,6 @@ class TripDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    _DetailRow(icon: Icons.alt_route, label: 'Route ID', value: trip.routeId),
-                    const Divider(),
-                    _DetailRow(icon: Icons.directions_bus, label: 'Vehicle ID', value: trip.vehicleId),
-                    const Divider(),
                     _DetailRow(icon: Icons.schedule, label: 'Departure', value: trip.departureTime.toLocal().toString().split('.')[0]),
                     const Divider(),
                     _DetailRow(icon: Icons.event, label: 'Arrival', value: trip.arrivalTime.toLocal().toString().split('.')[0]),

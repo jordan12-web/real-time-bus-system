@@ -35,7 +35,21 @@ class DioClient {
         },
         onError: (error, handler) async {
           final statusCode = error.response?.statusCode;
-          if (statusCode == 401 && onTokenRefresh != null && !_isRefreshing) {
+          final path = error.requestOptions.path;
+          // A 401 from the auth endpoints themselves means "wrong
+          // credentials" or "invalid/expired refresh token" — a real,
+          // user-facing message from the backend — not "my access token
+          // expired, please refresh it". Treating it as the latter here
+          // was silently discarding the backend's actual error message
+          // (e.g. "Invalid email or password") and replacing it with a
+          // generic "Unauthorized" on every failed login attempt.
+          final isAuthEndpoint = path.contains('/auth/login') ||
+              path.contains('/auth/signup') ||
+              path.contains('/auth/refresh');
+          if (statusCode == 401 &&
+              onTokenRefresh != null &&
+              !_isRefreshing &&
+              !isAuthEndpoint) {
             _isRefreshing = true;
             try {
               final refreshed = await onTokenRefresh!();

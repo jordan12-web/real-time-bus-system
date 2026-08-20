@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../controllers/auth_controller.dart' show bookingRepositoryProvider;
 import '../controllers/ticket_controller.dart';
+import '../routes/app_routes.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/primary_button.dart';
 
@@ -16,6 +18,7 @@ class TicketScreen extends ConsumerStatefulWidget {
 
 class _TicketScreenState extends ConsumerState<TicketScreen> {
   String? _bookingId;
+  String? _tripId;
 
   @override
   void didChangeDependencies() {
@@ -28,6 +31,18 @@ class _TicketScreenState extends ConsumerState<TicketScreen> {
     await ref
         .read(ticketControllerProvider.notifier)
         .generateTicket(_bookingId!);
+    // Ticket generation succeeding means the booking is confirmed — fetch
+    // its tripId now so the "Track Live Location" button has somewhere to
+    // navigate to.
+    if (_tripId == null && mounted) {
+      try {
+        final booking =
+            await ref.read(bookingRepositoryProvider).getBooking(_bookingId!);
+        if (mounted) setState(() => _tripId = booking.tripId);
+      } catch (_) {
+        // Non-fatal — Track button just won't be shown.
+      }
+    }
   }
 
   @override
@@ -101,6 +116,15 @@ class _TicketScreenState extends ConsumerState<TicketScreen> {
               isLoading: ticketState.isLoading,
               onPressed: _bookingId != null ? _handleGenerateTicket : null,
             ),
+            if (_tripId != null) ...[
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                key: const Key('track_live_location_button'),
+                icon: const Icon(Icons.map_outlined),
+                label: const Text('Track Live Location'),
+                onPressed: () => AppRoutes.navigateToTracking(context, _tripId!),
+              ),
+            ],
           ],
         ),
       ),
