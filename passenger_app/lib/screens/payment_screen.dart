@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../routes/app_routes.dart';
 import '../controllers/payment_controller.dart';
+import '../theme/design_tokens.dart';
 import '../widgets/app_scaffold.dart';
-import '../widgets/primary_button.dart';
+import '../widgets/polished_button.dart';
+import '../widgets/polished_card.dart';
+import '../widgets/status_badge.dart';
 import 'chapa_checkout_screen.dart';
 
 /// Payment Screen handling initiation and status polling.
@@ -36,9 +39,6 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           builder: (_) => ChapaCheckoutScreen(checkoutUrl: result.checkoutUrl),
         ),
       );
-      // Whether the WebView detected the return_url or the user just
-      // backed out manually, check the real status now rather than
-      // assuming — this is the source of truth, not the WebView nav event.
       if (mounted) {
         _startPolling(result.payment.id);
       }
@@ -58,72 +58,76 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final paymentState = ref.watch(paymentControllerProvider);
+    final status = paymentState.payment?.status ??
+        paymentState.initiation?.payment.status ??
+        'pending';
 
     return AppScaffold(
       title: 'Payment',
+      centerTitle: false,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 24),
             Text(
               'Booking ID: ${_bookingId ?? 'N/A'}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 16),
-            if (paymentState.initiation != null) ...[
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Amount: ${paymentState.initiation!.payment.amount} ${paymentState.initiation!.payment.currency}'),
-                      const SizedBox(height: 8),
-                      Text('Status: ${paymentState.payment?.status ?? paymentState.initiation!.payment.status}'),
-                    ],
-                  ),
+            const SizedBox(height: DesignTokens.spaceMd),
+            if (paymentState.initiation != null)
+              PolishedCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${paymentState.initiation!.payment.amount} ${paymentState.initiation!.payment.currency}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 20,
+                          ),
+                        ),
+                        StatusBadge(status: status),
+                      ],
+                    ),
+                    const SizedBox(height: DesignTokens.spaceXs),
+                    Text(
+                      'Complete payment to confirm your seat.',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-            ],
+            const SizedBox(height: DesignTokens.spaceMd),
             if (paymentState.errorMessage != null) ...[
               Text(
                 paymentState.errorMessage!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: DesignTokens.spaceMd),
             ],
-            PrimaryButton(
+            PolishedButton(
               key: const Key('pay_button'),
-              text: paymentState.initiation == null ? 'Initiate Payment' : 'Re-open Checkout',
+              label: paymentState.initiation == null ? 'Initiate Payment' : 'Re-open Checkout',
               isLoading: paymentState.isLoading,
+              icon: Icons.payment_rounded,
               onPressed: _bookingId != null ? _handleInitiatePayment : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: DesignTokens.spaceMd),
             if (paymentState.initiation != null)
-              OutlinedButton(
+              PolishedButton(
                 key: const Key('poll_status_button'),
+                label: paymentState.isPolling ? 'Checking Status...' : 'Check Payment Status',
+                variant: PolishedButtonVariant.secondary,
+                isLoading: paymentState.isPolling,
                 onPressed: paymentState.isPolling
                     ? null
-                    : () {
-                        _startPolling(paymentState.initiation!.payment.id);
-                      },
-                child: paymentState.isPolling
-                    ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2.0),
-                          ),
-                          SizedBox(width: 8),
-                          Text('Checking Status...'),
-                        ],
-                      )
-                    : const Text('Check Payment Status'),
+                    : () => _startPolling(paymentState.initiation!.payment.id),
               ),
           ],
         ),
