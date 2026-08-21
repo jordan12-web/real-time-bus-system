@@ -31,7 +31,7 @@ Future<void> main() async {
     // .env is optional in local/test runs.
   }
 
-  final themeProvider = await createThemeProvider();
+  final themeProvider = await ThemeProvider.create();
 
   runApp(
     ProviderScope(

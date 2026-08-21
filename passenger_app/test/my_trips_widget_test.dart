@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:passenger_app/controllers/auth_controller.dart';
 import 'package:passenger_app/controllers/my_bookings_controller.dart';
@@ -47,9 +46,8 @@ void main() {
     status: 'scheduled',
   );
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
-    themeProvider = await createThemeProvider();
+  setUp(() {
+    themeProvider = ThemeProvider.forTesting();
     bookingRepository = _MockBookingRepository();
     tripRepository = _MockTripRepository();
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Modern Gradient design system tokens.
 abstract final class DesignTokens {
@@ -46,32 +45,42 @@ abstract final class DesignTokens {
   static const Duration pageTransition = Duration(milliseconds: 280);
   static const Curve easing = Cubic(0.2, 0.8, 0.2, 1);
 
+  /// Inter when available; falls back to platform sans-serif.
+  static const String fontFamily = 'Inter';
+  static const List<String> fontFamilyFallback = [
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ];
+
+  static TextStyle _styled({
+    required double fontSize,
+    required FontWeight fontWeight,
+    double? height,
+    double? letterSpacing,
+    Color? color,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      height: height,
+      letterSpacing: letterSpacing,
+      color: color,
+    );
+  }
+
   // ── Typography ────────────────────────────────────────────────────────
   static TextTheme textTheme({required Brightness brightness}) {
-    final base = brightness == Brightness.dark
-        ? ThemeData.dark(useMaterial3: true).textTheme
-        : ThemeData.light(useMaterial3: true).textTheme;
-
-    return GoogleFonts.interTextTheme(base).copyWith(
-      headlineSmall: GoogleFonts.inter(
-        fontWeight: FontWeight.w700,
-        fontSize: 22,
-        letterSpacing: -0.2,
-      ),
-      titleMedium: GoogleFonts.inter(
-        fontWeight: FontWeight.w600,
-        fontSize: 16,
-      ),
-      bodyMedium: GoogleFonts.inter(
-        fontWeight: FontWeight.w400,
-        fontSize: 14,
-        height: 1.4,
-      ),
-      labelLarge: GoogleFonts.inter(
-        fontWeight: FontWeight.w600,
-        fontSize: 14,
-        letterSpacing: 0.1,
-      ),
+    final color = brightness == Brightness.dark ? Colors.white : const Color(0xFF111827);
+    return TextTheme(
+      headlineSmall: _styled(fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: -0.2, color: color),
+      titleMedium: _styled(fontSize: 16, fontWeight: FontWeight.w600, color: color),
+      bodyMedium: _styled(fontSize: 14, fontWeight: FontWeight.w400, height: 1.4, color: color),
+      labelLarge: _styled(fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.1, color: color),
     );
   }
 
@@ -101,6 +110,8 @@ abstract final class DesignTokens {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: backgroundStart,
       textTheme: textTheme(brightness: Brightness.light),
@@ -110,9 +121,9 @@ abstract final class DesignTokens {
         scrolledUnderElevation: 0,
         backgroundColor: backgroundStart.withValues(alpha: 0.85),
         foregroundColor: const Color(0xFF111827),
-        titleTextStyle: GoogleFonts.inter(
-          fontWeight: FontWeight.w600,
+        titleTextStyle: _styled(
           fontSize: 18,
+          fontWeight: FontWeight.w600,
           color: const Color(0xFF111827),
         ),
         iconTheme: const IconThemeData(size: 24),
@@ -164,6 +175,8 @@ abstract final class DesignTokens {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: darkBackground,
       textTheme: textTheme(brightness: Brightness.dark),
@@ -173,9 +186,9 @@ abstract final class DesignTokens {
         scrolledUnderElevation: 0,
         backgroundColor: darkBackground.withValues(alpha: 0.92),
         foregroundColor: Colors.white,
-        titleTextStyle: GoogleFonts.inter(
-          fontWeight: FontWeight.w600,
+        titleTextStyle: _styled(
           fontSize: 18,
+          fontWeight: FontWeight.w600,
           color: Colors.white,
         ),
         iconTheme: const IconThemeData(size: 24),

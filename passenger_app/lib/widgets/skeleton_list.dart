@@ -1,7 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../theme/design_tokens.dart';
+
+/// Lightweight shimmer placeholder without external packages.
+class _ShimmerBox extends StatefulWidget {
+  final Widget child;
+
+  const _ShimmerBox({required this.child});
+
+  @override
+  State<_ShimmerBox> createState() => _ShimmerBoxState();
+}
+
+class _ShimmerBoxState extends State<_ShimmerBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) {
+            return LinearGradient(
+              begin: Alignment(-1 - _controller.value * 2, 0),
+              end: Alignment(1 - _controller.value * 2, 0),
+              colors: const [
+                Color(0x00FFFFFF),
+                Color(0x55FFFFFF),
+                Color(0x00FFFFFF),
+              ],
+            ).createShader(bounds);
+          },
+          child: child,
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
 
 /// Skeleton placeholder list for loading states.
 class SkeletonList extends StatelessWidget {
@@ -18,16 +72,13 @@ class SkeletonList extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final base = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
-    final highlight = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
 
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: itemCount,
       separatorBuilder: (_, __) => const SizedBox(height: DesignTokens.spaceSm),
-      itemBuilder: (_, __) => Shimmer.fromColors(
-        baseColor: base,
-        highlightColor: highlight,
+      itemBuilder: (_, __) => _ShimmerBox(
         child: Container(
           height: showRouteLine ? 96 : 72,
           decoration: BoxDecoration(
@@ -51,11 +102,8 @@ class SkeletonBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final base = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
-    final highlight = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
 
-    return Shimmer.fromColors(
-      baseColor: base,
-      highlightColor: highlight,
+    return _ShimmerBox(
       child: Container(
         height: height,
         width: width ?? double.infinity,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:passenger_app/main.dart';
 import 'package:passenger_app/theme/theme_provider.dart';
@@ -10,8 +9,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('App boots with Modern Gradient theme wired', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final themeProvider = await createThemeProvider();
+    final themeProvider = ThemeProvider.forTesting();
 
     await tester.pumpWidget(
       ProviderScope(
