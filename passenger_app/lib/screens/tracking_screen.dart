@@ -8,13 +8,11 @@ import '../controllers/tracking_controller.dart';
 import '../core/city_coordinates.dart';
 import '../models/trip.dart';
 import '../models/trip_location.dart';
+import '../theme/design_tokens.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/polished_card.dart';
 
-/// Live Tracking screen: OpenStreetMap view (via flutter_map, no API key
-/// needed) showing the origin/destination as pins with a route line between
-/// them, and the bus's live position from SSE tracking data as a moving
-/// marker. Falls back gracefully (no pins/line, bus marker only) if the
-/// trip's origin/destination text isn't in our known-cities lookup.
+/// Live Tracking screen with map, ETA, and last update time.
 class TrackingScreen extends ConsumerStatefulWidget {
   const TrackingScreen({super.key});
 
@@ -54,9 +52,6 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     }
   }
 
-  /// Haversine-based ETA: straight-line distance from the bus's current
-  /// position to the destination, divided by its last reported speed. This
-  /// is a rough estimate (not routed along roads) — good enough for a demo.
   String? _estimateEta(LatLng busPosition, LatLng destination, double speedKmh) {
     if (speedKmh <= 0) return null;
     final distanceKm = _distance.as(LengthUnit.Kilometer, busPosition, destination);
@@ -92,12 +87,15 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
       eta = _estimateEta(busLatLng, destinationLatLng, latest.speedKmh);
     }
 
+    final lastUpdate = latest?.recordedAt ?? 'Waiting for update';
+
     return AppScaffold(
-      title: _trip != null ? '${_trip!.origin} \u2192 ${_trip!.destination}' : 'Live Tracking',
+      title: _trip != null ? '${_trip!.origin} → ${_trip!.destination}' : 'Live Tracking',
+      centerTitle: false,
       actions: [
         IconButton(
           key: const Key('toggle_tracking_list_button'),
-          icon: Icon(_showList ? Icons.map : Icons.list),
+          icon: Icon(_showList ? Icons.map_rounded : Icons.list_rounded),
           tooltip: _showList ? 'Show map' : 'Show list',
           onPressed: () => setState(() => _showList = !_showList),
         ),
@@ -105,39 +103,101 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              if (trackingState.isStreaming)
-                const Expanded(
-                  child: Row(
+          PolishedCard(
+            padding: const EdgeInsets.symmetric(
+              horizontal: DesignTokens.spaceMd,
+              vertical: DesignTokens.spaceSm,
+            ),
+            child: Row(
+              children: [
+                if (trackingState.isStreaming)
+                  Row(
                     children: [
-                      Icon(Icons.sensors, color: Colors.green, size: 18),
-                      SizedBox(width: 6),
+                      Icon(
+                        Icons.sensors_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 6),
                       Text(
                         'Live',
-                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
+                  )
+                else
+                  Text(
+                    'Waiting for driver location...',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
                   ),
-                )
-              else
-                const Expanded(
-                  child: Text('Waiting for driver location...', style: TextStyle(color: Colors.grey)),
+                const Spacer(),
+                if (eta != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DesignTokens.spaceSm,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(DesignTokens.radiusPill),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 14,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'ETA $eta',
+                          key: const Key('tracking_eta'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: DesignTokens.spaceXs),
+          Row(
+            children: [
+              Icon(
+                Icons.update_rounded,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  'Last update: $lastUpdate',
+                  key: const Key('tracking_last_update'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                 ),
-              if (eta != null)
-                Chip(
-                  avatar: const Icon(Icons.schedule, size: 16),
-                  label: Text('ETA: $eta'),
-                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: DesignTokens.spaceSm),
           if (trackingState.errorMessage != null)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(bottom: DesignTokens.spaceXs),
               child: Text(
                 trackingState.errorMessage!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           Expanded(
@@ -146,7 +206,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                 : _loadingTrip && busLatLng == null
                     ? const Center(child: CircularProgressIndicator())
                     : ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(DesignTokens.radiusGlobal),
                         child: FlutterMap(
                           mapController: _mapController,
                           options: MapOptions(
@@ -164,7 +224,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                                   Polyline(
                                     points: [originLatLng, destinationLatLng],
                                     strokeWidth: 4,
-                                    color: Colors.blueAccent.withValues(alpha: 0.7),
+                                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
                                   ),
                                 ],
                               ),
@@ -175,14 +235,22 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                                     point: originLatLng,
                                     width: 36,
                                     height: 36,
-                                    child: const Icon(Icons.trip_origin, color: Colors.green, size: 28),
+                                    child: Icon(
+                                      Icons.trip_origin_rounded,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      size: 28,
+                                    ),
                                   ),
                                 if (destinationLatLng != null)
                                   Marker(
                                     point: destinationLatLng,
                                     width: 36,
                                     height: 36,
-                                    child: const Icon(Icons.flag, color: Colors.red, size: 28),
+                                    child: Icon(
+                                      Icons.flag_rounded,
+                                      color: DesignTokens.statusCancelled,
+                                      size: 28,
+                                    ),
                                   ),
                                 if (busLatLng != null)
                                   Marker(
@@ -217,10 +285,30 @@ class _RecentLocationsList extends StatelessWidget {
       itemCount: locations.length,
       itemBuilder: (context, index) {
         final loc = locations[index];
-        return ListTile(
-          leading: const Icon(Icons.location_on),
-          title: Text('Lat: ${loc.latitude.toStringAsFixed(4)}, Lng: ${loc.longitude.toStringAsFixed(4)}'),
-          subtitle: Text('Speed: ${loc.speedKmh} km/h | Recorded: ${loc.recordedAt ?? 'N/A'}'),
+        return PolishedCard(
+          margin: const EdgeInsets.only(bottom: DesignTokens.spaceXs),
+          padding: const EdgeInsets.all(DesignTokens.spaceSm),
+          child: Row(
+            children: [
+              Icon(Icons.location_on_rounded, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: DesignTokens.spaceSm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Lat: ${loc.latitude.toStringAsFixed(4)}, Lng: ${loc.longitude.toStringAsFixed(4)}'),
+                    Text(
+                      'Speed: ${loc.speedKmh} km/h · ${loc.recordedAt ?? 'N/A'}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
