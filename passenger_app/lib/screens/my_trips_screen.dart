@@ -139,7 +139,7 @@ class _MyTripsScreenState extends ConsumerState<MyTripsScreen> {
             child: ListView.separated(
               key: const Key('my_trips_list'),
               itemCount: state.bookings.length,
-              separatorBuilder: (_, __) => const SizedBox(height: DesignTokens.spaceSm),
+              separatorBuilder: (context, index) => const SizedBox(height: DesignTokens.spaceSm),
               itemBuilder: (context, index) {
                 final booking = state.bookings[index];
                 final trip = _tripCache[booking.tripId];

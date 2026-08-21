@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,9 +18,9 @@ void main() {
         child: PassengerApp(themeProvider: themeProvider),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.byKey(AppKeys.rootScaffold), findsOneWidget);
-    expect(find.byKey(const Key('theme_mode_toggle')), findsOneWidget);
+    expect(find.text('Guzo'), findsOneWidget);
   });
 }

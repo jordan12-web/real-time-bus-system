@@ -78,9 +78,33 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
           icon: const Icon(Icons.logout_rounded),
           tooltip: 'Log out',
           onPressed: () async {
-            final navigator = Navigator.of(context);
-            await ref.read(authControllerProvider.notifier).logout();
-            navigator.pushReplacementNamed(AppRoutes.login);
+            final shouldLogout = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Log Out'),
+                content: const Text('Are you sure you want to log out?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(ctx).colorScheme.error,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: const Text('Log Out'),
+                  ),
+                ],
+              ),
+            );
+
+            if (shouldLogout == true && context.mounted) {
+              final navigator = Navigator.of(context);
+              await ref.read(authControllerProvider.notifier).logout();
+              navigator.pushReplacementNamed(AppRoutes.login);
+            }
           },
         ),
       ],
@@ -136,12 +160,16 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
                               ),
                             ),
                           )
-                        : ListView.separated(
-                            key: const Key('trip_list'),
-                            itemCount: tripState.trips.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: DesignTokens.spaceSm),
-                            itemBuilder: (context, index) {
+                        : RefreshIndicator(
+                            onRefresh: () async {
+                              ref.read(tripControllerProvider.notifier).loadTrips(forceRefresh: true);
+                            },
+                            child: ListView.separated(
+                              key: const Key('trip_list'),
+                              itemCount: tripState.trips.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: DesignTokens.spaceSm),
+                              itemBuilder: (context, index) {
                               final trip = tripState.trips[index];
                               return PolishedCard(
                                 key: Key('trip_item_${trip.id}'),
@@ -203,6 +231,7 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
                               );
                             },
                           ),
+                        ),
           ),
         ],
       ),

@@ -6,8 +6,10 @@ import 'routes/app_routes.dart';
 import 'screens/booking_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/my_trips_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/payment_screen.dart';
 import 'screens/signup_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/ticket_screen.dart';
 import 'screens/tracking_screen.dart';
 import 'screens/trip_detail_screen.dart';
@@ -28,7 +30,7 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    // .env is optional in local/test runs.
+    
   }
 
   final themeProvider = await ThemeProvider.create();
@@ -56,13 +58,15 @@ class PassengerApp extends StatelessWidget {
         return MaterialApp(
           key: AppKeys.rootScaffold,
           navigatorKey: AppKeys.navigatorKey,
-          title: 'Bus Passenger',
+          title: 'Guzo - Bus Passenger',
           debugShowCheckedModeBanner: false,
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,
           themeMode: themeProvider.mode,
-          initialRoute: AppRoutes.signup,
+          initialRoute: AppRoutes.splash,
           routes: {
+            AppRoutes.splash: (context) => const SplashScreen(),
+            AppRoutes.onboarding: (context) => const OnboardingScreen(),
             AppRoutes.signup: (context) => const SignupScreen(),
             AppRoutes.login: (context) => const LoginScreen(),
             AppRoutes.tripList: (context) => const TripListScreen(),

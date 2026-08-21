@@ -77,8 +77,8 @@ class SkeletonList extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: itemCount,
-      separatorBuilder: (_, __) => const SizedBox(height: DesignTokens.spaceSm),
-      itemBuilder: (_, __) => _ShimmerBox(
+      separatorBuilder: (context, index) => const SizedBox(height: DesignTokens.spaceSm),
+      itemBuilder: (context, index) => _ShimmerBox(
         child: Container(
           height: showRouteLine ? 96 : 72,
           decoration: BoxDecoration(

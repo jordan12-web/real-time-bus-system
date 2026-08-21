@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:passenger_app/controllers/auth_controller.dart';
-import 'package:passenger_app/controllers/my_bookings_controller.dart';
 import 'package:passenger_app/models/booking.dart';
 import 'package:passenger_app/models/trip.dart';
 import 'package:passenger_app/repositories/booking_repository.dart';

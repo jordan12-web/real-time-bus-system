@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
 
-
 class AppRoutes {
   AppRoutes._();
 
+  static const String splash = '/splash';
+  static const String onboarding = '/onboarding';
   static const String login = '/login';
+  static const String signup = '/signup';
   static const String tripList = '/trip-list';
   static const String tripDetail = '/trip-detail';
   static const String booking = '/booking';
   static const String payment = '/payment';
   static const String ticket = '/ticket';
   static const String tracking = '/tracking';
-  static const String signup = '/signup';
   static const String myTrips = '/my-trips';
 
+  static Future<T?> navigateToSplash<T>(BuildContext context) {
+    return Navigator.pushNamedAndRemoveUntil<T>(context, splash, (route) => false);
+  }
 
- static Future<T?> navigateToSignup<T>(BuildContext context) {
+  static Future<T?> navigateToOnboarding<T>(BuildContext context) {
+    return Navigator.pushReplacementNamed<T, dynamic>(context, onboarding);
+  }
+
+  static Future<T?> navigateToSignup<T>(BuildContext context) {
     return Navigator.pushNamedAndRemoveUntil<T>(context, signup, (route) => false);
   }
+
   static Future<T?> navigateToLogin<T>(BuildContext context) {
     return Navigator.pushNamedAndRemoveUntil<T>(context, login, (route) => false);
   }
-
 
   static Future<T?> navigateToTripList<T>(BuildContext context) {
     return Navigator.pushReplacementNamed<T, dynamic>(context, tripList);
