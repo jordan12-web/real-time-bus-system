@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:passenger_app/controllers/auth_controller.dart';
 import 'package:passenger_app/repositories/auth_repository.dart';
 import 'package:passenger_app/screens/login_screen.dart';
+import 'package:passenger_app/theme/theme_provider.dart';
 
 // TODO: Define mock implementations for AuthRepository and AuthController
 class MockAuthRepository extends Mock implements AuthRepository {}
@@ -21,10 +22,12 @@ void main() {
 
   testWidgets('LoginScreen renders email field, password field, and login button',
       (WidgetTester tester) async {
+    final themeProvider = ThemeProvider.forTesting();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authRepositoryProvider.overrideWithValue(mockAuthRepository),
+          themeProviderInstance.overrideWith((ref) => themeProvider),
         ],
         child: const MaterialApp(
           home: LoginScreen(),
@@ -44,10 +47,12 @@ void main() {
     // when(() => mockAuthRepository.login(email: 'test@example.com', password: 'password'))
     //     .thenAnswer((_) async => const User(id: '1', email: 'test@example.com', name: 'Test User'));
 
+    final themeProvider = ThemeProvider.forTesting();
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authRepositoryProvider.overrideWithValue(mockAuthRepository),
+          themeProviderInstance.overrideWith((ref) => themeProvider),
         ],
         child: const MaterialApp(
           home: LoginScreen(),
