@@ -21,6 +21,7 @@ export const postInitiatePayment = async (req, res, next) => {
 
 export const postWebhook = async (req, res, next) => {
   try {
+    console.log('Incoming Chapa webhook:', JSON.stringify(req.body).slice(0, 1000));
     await handleWebhook(req.body);
     return res.status(200).json({ received: true });
   } catch (error) {
