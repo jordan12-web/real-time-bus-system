@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:passenger_app/screens/signup_screen.dart';
 
 import 'routes/app_routes.dart';
 import 'screens/booking_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/my_trips_screen.dart';
 import 'screens/payment_screen.dart';
+import 'screens/signup_screen.dart';
 import 'screens/ticket_screen.dart';
 import 'screens/tracking_screen.dart';
 import 'screens/trip_detail_screen.dart';
 import 'screens/trip_list_screen.dart';
+import 'theme/theme_provider.dart';
 
 class AppKeys {
   AppKeys._();
@@ -27,36 +28,52 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    
+    // .env is optional in local/test runs.
   }
-  runApp(const ProviderScope(child: PassengerApp()));
+
+  final themeProvider = await createThemeProvider();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        themeProviderInstance.overrideWith((ref) => themeProvider),
+      ],
+      child: PassengerApp(themeProvider: themeProvider),
+    ),
+  );
 }
 
 class PassengerApp extends StatelessWidget {
-  const PassengerApp({super.key});
+  const PassengerApp({super.key, required this.themeProvider});
+
+  final ThemeProvider themeProvider;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      key: AppKeys.rootScaffold,
-      navigatorKey: AppKeys.navigatorKey,
-      title: 'Bus Passenger',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      initialRoute: AppRoutes.signup,
-      routes: {
-        AppRoutes.signup: (context) => const SignupScreen(),
-        AppRoutes.login: (context) => const LoginScreen(),
-        AppRoutes.tripList: (context) => const TripListScreen(),
-        AppRoutes.tripDetail: (context) => const TripDetailScreen(),
-        AppRoutes.booking: (context) => const BookingScreen(),
-        AppRoutes.payment: (context) => const PaymentScreen(),
-        AppRoutes.ticket: (context) => const TicketScreen(),
-        AppRoutes.tracking: (context) => const TrackingScreen(),
-        AppRoutes.myTrips: (context) => const MyTripsScreen(),
+    return ListenableBuilder(
+      listenable: themeProvider,
+      builder: (context, _) {
+        return MaterialApp(
+          key: AppKeys.rootScaffold,
+          navigatorKey: AppKeys.navigatorKey,
+          title: 'Bus Passenger',
+          debugShowCheckedModeBanner: false,
+          theme: themeProvider.lightTheme,
+          darkTheme: themeProvider.darkTheme,
+          themeMode: themeProvider.mode,
+          initialRoute: AppRoutes.signup,
+          routes: {
+            AppRoutes.signup: (context) => const SignupScreen(),
+            AppRoutes.login: (context) => const LoginScreen(),
+            AppRoutes.tripList: (context) => const TripListScreen(),
+            AppRoutes.tripDetail: (context) => const TripDetailScreen(),
+            AppRoutes.booking: (context) => const BookingScreen(),
+            AppRoutes.payment: (context) => const PaymentScreen(),
+            AppRoutes.ticket: (context) => const TicketScreen(),
+            AppRoutes.tracking: (context) => const TrackingScreen(),
+            AppRoutes.myTrips: (context) => const MyTripsScreen(),
+          },
+        );
       },
     );
   }
