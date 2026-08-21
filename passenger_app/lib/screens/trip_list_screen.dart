@@ -4,8 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/trip_controller.dart';
 import '../routes/app_routes.dart';
+import '../theme/design_tokens.dart';
 import '../widgets/app_scaffold.dart';
+import '../widgets/polished_button.dart';
+import '../widgets/polished_card.dart';
+import '../widgets/skeleton_list.dart';
+import '../widgets/status_badge.dart';
 
+/// Home screen — searchable trip list (TripListScreen).
 class TripListScreen extends ConsumerStatefulWidget {
   const TripListScreen({super.key});
 
@@ -39,6 +45,13 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
         );
   }
 
+  String _formatDeparture(DateTime time) {
+    final local = time.toLocal();
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
+
   @override
   Widget build(BuildContext context) {
     final tripState = ref.watch(tripControllerProvider);
@@ -48,7 +61,7 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
       actions: [
         IconButton(
           key: const Key('refresh_trips_button'),
-          icon: const Icon(Icons.refresh),
+          icon: const Icon(Icons.refresh_rounded),
           tooltip: 'Refresh trips',
           onPressed: () {
             ref.read(tripControllerProvider.notifier).loadTrips(forceRefresh: true);
@@ -56,15 +69,13 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
         ),
         IconButton(
           key: const Key('my_trips_button'),
-          icon: const Icon(Icons.confirmation_number_outlined),
+          icon: const Icon(Icons.confirmation_number_rounded),
           tooltip: 'My Trips',
-          onPressed: () {
-            AppRoutes.navigateToMyTrips(context);
-          },
+          onPressed: () => AppRoutes.navigateToMyTrips(context),
         ),
         IconButton(
           key: const Key('logout_button'),
-          icon: const Icon(Icons.logout),
+          icon: const Icon(Icons.logout_rounded),
           tooltip: 'Log out',
           onPressed: () async {
             final navigator = Navigator.of(context);
@@ -75,87 +86,119 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
       ],
       child: Column(
         children: [
-          Card(
-            margin: const EdgeInsets.all(12),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  TextField(
-                    key: const Key('search_origin_input'),
-                    controller: _originController,
-                    decoration: const InputDecoration(
-                      labelText: 'Origin (e.g. Addis Ababa)',
-                      prefixIcon: Icon(Icons.location_on_outlined),
-                      border: OutlineInputBorder(),
-                    ),
+          PolishedCard(
+            child: Column(
+              children: [
+                TextField(
+                  key: const Key('search_origin_input'),
+                  controller: _originController,
+                  decoration: const InputDecoration(
+                    labelText: 'Origin (e.g. Addis Ababa)',
+                    prefixIcon: Icon(Icons.location_on_rounded),
                   ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    key: const Key('search_destination_input'),
-                    controller: _destinationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Destination (e.g. Hawassa)',
-                      prefixIcon: Icon(Icons.flag_outlined),
-                      border: OutlineInputBorder(),
-                    ),
+                ),
+                const SizedBox(height: DesignTokens.spaceXs),
+                TextField(
+                  key: const Key('search_destination_input'),
+                  controller: _destinationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Destination (e.g. Hawassa)',
+                    prefixIcon: Icon(Icons.flag_rounded),
                   ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      key: const Key('search_button'),
-                      onPressed: _onSearch,
-                      icon: const Icon(Icons.search),
-                      label: const Text('Search Trips'),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: DesignTokens.spaceSm),
+                PolishedButton(
+                  key: const Key('search_button'),
+                  label: 'Search Trips',
+                  icon: Icons.search_rounded,
+                  onPressed: _onSearch,
+                ),
+              ],
             ),
           ),
+          const SizedBox(height: DesignTokens.spaceSm),
           Expanded(
             child: tripState.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const SkeletonList(itemCount: 6)
                 : tripState.errorMessage != null
                     ? Center(
                         child: Text(
                           tripState.errorMessage!,
-                          style: const TextStyle(color: Colors.red),
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),
                       )
                     : tripState.trips.isEmpty
-                        ? const Center(child: Text('No trips found for selected route.'))
-                        : ListView.builder(
+                        ? Center(
+                            child: Text(
+                              'No trips found for selected route.',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
                             key: const Key('trip_list'),
                             itemCount: tripState.trips.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: DesignTokens.spaceSm),
                             itemBuilder: (context, index) {
                               final trip = tripState.trips[index];
-                              return Card(
+                              return PolishedCard(
                                 key: Key('trip_item_${trip.id}'),
-                                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                child: ListTile(
-                                  title: Text(
-                                    '${trip.origin} → ${trip.destination}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  subtitle: Text(
-                                    'Departure: ${trip.departureTime.toLocal().toString().split('.')[0]}',
-                                  ),
-                                  trailing: Text(
-                                    '${trip.pricePerSeat.toStringAsFixed(2)} ETB',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.deepPurple,
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    AppRoutes.tripDetail,
+                                    arguments: trip,
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.directions_bus_rounded,
+                                      color: Theme.of(context).colorScheme.primary,
                                     ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.tripDetail,
-                                      arguments: trip,
-                                    );
-                                  },
+                                    const SizedBox(width: DesignTokens.spaceSm),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${trip.origin} → ${trip.destination}',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Departs ${_formatDeparture(trip.departureTime)}',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withValues(alpha: 0.7),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '${trip.pricePerSeat.toStringAsFixed(0)} ETB',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(context).colorScheme.secondary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        StatusBadge(status: trip.status),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               );
                             },
