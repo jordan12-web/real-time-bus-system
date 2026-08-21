@@ -1,4 +1,24 @@
-import { initiatePayment, handleWebhook, getPaymentById } from '../services/paymentService.js';
+import crypto from 'crypto';
+import { initiatePayment, handleWebhook, getPaymentById, verifyAndSyncPayment } from '../services/paymentService.js';
+
+
+const isValidChapaSignature = (req) => {
+  const secret = process.env.CHAPA_WEBHOOK_SECRET;
+  if (!secret) {
+    console.warn('CHAPA_WEBHOOK_SECRET is not set — webhook signature is NOT being verified.');
+    return true;
+  }
+
+  const expectedHash = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+  const chapaSig = req.headers['chapa-signature'];
+  const xChapaSig = req.headers['x-chapa-signature'];
+
+  return chapaSig === expectedHash || xChapaSig === expectedHash;
+};
 
 export const postInitiatePayment = async (req, res, next) => {
   try {
@@ -21,7 +41,10 @@ export const postInitiatePayment = async (req, res, next) => {
 
 export const postWebhook = async (req, res, next) => {
   try {
-    console.log('Incoming Chapa webhook:', JSON.stringify(req.body).slice(0, 1000));
+    if (!isValidChapaSignature(req)) {
+      console.warn('Rejected webhook call with invalid/missing Chapa signature.');
+      return res.status(401).json({ error: 'Invalid webhook signature' });
+    }
     await handleWebhook(req.body);
     return res.status(200).json({ received: true });
   } catch (error) {
@@ -33,6 +56,15 @@ export const getPayment = async (req, res, next) => {
   try {
     const payment = await getPaymentById(req.params.id, req.user.id, req.user.role);
     return res.status(200).json({ payment });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const postVerifyPayment = async (req, res, next) => {
+  try {
+    const result = await verifyAndSyncPayment(req.params.id, req.user.id, req.user.role);
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }

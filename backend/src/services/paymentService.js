@@ -147,6 +147,32 @@ export const verifyPaymentByTxRef = async (tx_ref) => {
   }
 };
 
+const applyVerificationResult = async (payment, verification) => {
+  const booking = await Booking.findById(payment.booking_id);
+
+  if (verification.status === 'success' && verification.data?.status === 'success') {
+    payment.status = 'success';
+    await payment.save();
+
+    if (booking) {
+      booking.status = 'confirmed';
+      await booking.save();
+    }
+  } else if (verification.data?.status && verification.data.status !== 'pending') {
+    // Any terminal non-success status from Chapa (failed, cancelled, etc.) —
+    // don't mark failed just because it's still pending mid-checkout.
+    payment.status = 'failed';
+    await payment.save();
+
+    if (booking) {
+      booking.status = 'cancelled';
+      await booking.save();
+    }
+  }
+
+  return { payment: payment.toJSON(), booking: booking ? booking.toJSON() : null };
+};
+
 export const handleWebhook = async (payload) => {
   const tx_ref = payload.tx_ref || payload.chapa_tx_ref || payload.trx_ref || payload.reference;
   if (!tx_ref) {
@@ -163,27 +189,37 @@ export const handleWebhook = async (payload) => {
   }
 
   const verification = await verifyPaymentByTxRef(tx_ref);
-  const booking = await Booking.findById(payment.booking_id);
+  return applyVerificationResult(payment, verification);
+};
 
-  if (verification.status === 'success' && verification.data?.status === 'success') {
-    payment.status = 'success';
-    await payment.save();
-
-    if (booking) {
-      booking.status = 'confirmed';
-      await booking.save();
-    }
-  } else {
-    payment.status = 'failed';
-    await payment.save();
-
-    if (booking) {
-      booking.status = 'cancelled';
-      await booking.save();
-    }
+/// Actively re-checks a payment's status directly against Chapa's verify
+/// API, instead of passively waiting for Chapa's webhook to call us. Safe
+/// to call repeatedly (e.g. from client polling) — if the payment is
+/// already resolved (not 'pending'), it returns immediately without
+/// hitting Chapa again. This exists specifically because webhook delivery
+/// is not guaranteed to be fast or to arrive at all in a sandbox setup —
+/// this gives the client a reliable way to reach a final status either way.
+export const verifyAndSyncPayment = async (id, userId, role) => {
+  const payment = await Payment.findById(id);
+  if (!payment) {
+    const error = new Error('Payment not found');
+    error.statusCode = 404;
+    throw error;
   }
 
-  return { payment: payment.toJSON(), booking: booking ? booking.toJSON() : null };
+  const booking = await Booking.findById(payment.booking_id);
+  if (role !== 'admin' && booking && booking.user_id.toString() !== userId) {
+    const error = new Error('Forbidden: Access denied to this payment record');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (payment.status !== 'pending') {
+    return { payment: payment.toJSON(), booking: booking ? booking.toJSON() : null };
+  }
+
+  const verification = await verifyPaymentByTxRef(payment.chapa_tx_ref);
+  return applyVerificationResult(payment, verification);
 };
 
 export const getPaymentById = async (id, userId, role) => {

@@ -73,8 +73,8 @@ class PaymentController extends StateNotifier<PaymentState> {
   
   Future<Payment?> pollPaymentStatus(
     String paymentId, {
-    Duration interval = const Duration(seconds: 3),
-    int maxAttempts = 20,
+    Duration interval = const Duration(seconds: 4),
+    int maxAttempts = 45,
   }) async {
     _stopPollingRequested = false;
     state = state.copyWith(isPolling: true, clearError: true);
@@ -82,7 +82,7 @@ class PaymentController extends StateNotifier<PaymentState> {
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
       if (_stopPollingRequested) break;
       try {
-        final payment = await _repository.getPayment(paymentId);
+        final payment = await _repository.verifyPayment(paymentId);
         state = state.copyWith(payment: payment);
         if (payment.status != 'pending') {
           state = state.copyWith(isPolling: false);

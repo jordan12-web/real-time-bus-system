@@ -50,6 +50,11 @@ class PaymentRepository {
     return Payment.fromJson(raw['payment'] as Map<String, dynamic>);
   }
 
+  Future<Payment> verifyPayment(String id) async {
+    final raw = await _service.verifyPayment(id);
+    return Payment.fromJson(raw['payment'] as Map<String, dynamic>);
+  }
+
   void clearPendingCache(String bookingId) =>
       _pendingByBooking.remove(bookingId);
 }

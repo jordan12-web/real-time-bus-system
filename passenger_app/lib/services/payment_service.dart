@@ -37,4 +37,16 @@ class PaymentService {
       throw _client.handleDioError(error);
     }
   }
+
+  
+  Future<Map<String, dynamic>> verifyPayment(String id) async {
+    try {
+      final response = await _client.sendWithRetry(
+        () => _client.dio.post<Map<String, dynamic>>('/payments/$id/verify'),
+      );
+      return normalizeKeys(response.data ?? {});
+    } on DioException catch (error) {
+      throw _client.handleDioError(error);
+    }
+  }
 }

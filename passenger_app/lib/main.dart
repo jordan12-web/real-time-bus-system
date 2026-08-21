@@ -27,8 +27,6 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    // .env missing or unreadable — initialize with no values so
-    // Config's ?? fallbacks actually take effect instead of throwing.
     
   }
   runApp(const ProviderScope(child: PassengerApp()));
