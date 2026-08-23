@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Modern Gradient design system tokens.
 abstract final class DesignTokens {
@@ -33,19 +34,18 @@ abstract final class DesignTokens {
 
   // ── Shadows ───────────────────────────────────────────────────────────
   static List<BoxShadow> cardShadow({bool pressed = false}) => [
-        BoxShadow(
-          color: Color.fromRGBO(16, 24, 40, pressed ? 0.12 : 0.06),
-          offset: Offset(0, pressed ? 8 : 4),
-          blurRadius: pressed ? 20 : 12,
-        ),
-      ];
+    BoxShadow(
+      color: Color.fromRGBO(16, 24, 40, pressed ? 0.12 : 0.06),
+      offset: Offset(0, pressed ? 8 : 4),
+      blurRadius: pressed ? 20 : 12,
+    ),
+  ];
 
   // ── Motion ────────────────────────────────────────────────────────────
   static const Duration microInteraction = Duration(milliseconds: 100);
   static const Duration pageTransition = Duration(milliseconds: 280);
   static const Curve easing = Cubic(0.2, 0.8, 0.2, 1);
 
-  /// Inter when available; falls back to platform sans-serif.
   static const String fontFamily = 'Inter';
   static const List<String> fontFamilyFallback = [
     'Segoe UI',
@@ -73,14 +73,35 @@ abstract final class DesignTokens {
     );
   }
 
-  // ── Typography ────────────────────────────────────────────────────────
+  // Typography
   static TextTheme textTheme({required Brightness brightness}) {
-    final color = brightness == Brightness.dark ? Colors.white : const Color(0xFF111827);
+    final color = brightness == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF111827);
     return TextTheme(
-      headlineSmall: _styled(fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: -0.2, color: color),
-      titleMedium: _styled(fontSize: 16, fontWeight: FontWeight.w600, color: color),
-      bodyMedium: _styled(fontSize: 14, fontWeight: FontWeight.w400, height: 1.4, color: color),
-      labelLarge: _styled(fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.1, color: color),
+      headlineSmall: _styled(
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
+        color: color,
+      ),
+      titleMedium: _styled(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: color,
+      ),
+      bodyMedium: _styled(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.4,
+        color: color,
+      ),
+      labelLarge: _styled(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
+        color: color,
+      ),
     );
   }
 
@@ -154,11 +175,11 @@ abstract final class DesignTokens {
           vertical: spaceSm,
         ),
       ),
-      pageTransitionsTheme: const PageTransitionsTheme(
+      pageTransitionsTheme: PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: const FadeUpwardsPageTransitionsBuilder(),
         },
       ),
     );
@@ -219,11 +240,11 @@ abstract final class DesignTokens {
           vertical: spaceSm,
         ),
       ),
-      pageTransitionsTheme: const PageTransitionsTheme(
+      pageTransitionsTheme: PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.android: const FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: const FadeUpwardsPageTransitionsBuilder(),
         },
       ),
     );
