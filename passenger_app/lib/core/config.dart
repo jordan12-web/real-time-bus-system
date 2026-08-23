@@ -11,7 +11,7 @@ class Config {
   }
 
   static String get apiBaseUrl =>
-      _env['API_BASE_URL'] ?? 'http://localhost:3000';
+      _env['API_BASE_URL'] ?? 'https://real-time-bus-system.onrender.com';
 
   
   static String get sseUrl =>

@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import authRoutes from './src/routes/authRoutes.js';
 import tripRoutes from './src/routes/tripRoutes.js';
 import bookingRoutes from './src/routes/bookingRoutes.js';
@@ -8,6 +9,8 @@ import trackingRoutes from './src/routes/trackingRoutes.js';
 
 const app = express();
 
+
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
