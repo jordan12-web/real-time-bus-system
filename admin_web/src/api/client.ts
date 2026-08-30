@@ -9,7 +9,7 @@ export function setAuthToken(token: string | null) {
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'https://real-time-bus-system.onrender.com',
-  timeout: 15000,
+  timeout: 35000,
 });
 
 apiClient.interceptors.request.use((config) => {
