@@ -14,6 +14,8 @@ export const updateUserRole = async (id, newRole, requestingUserId) => {
     throw error;
   }
 
+  // Prevent an admin from locking themselves out by accidentally
+  // demoting their own account.
   if (id === requestingUserId && newRole !== 'admin') {
     const error = new Error('You cannot change your own role.');
     error.statusCode = 400;

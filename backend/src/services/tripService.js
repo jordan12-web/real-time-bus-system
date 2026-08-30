@@ -50,7 +50,13 @@ export const getTripById = async (id) => {
   return trip.toJSON();
 };
 
-
+// Manifest for one trip — who's booked, seat, payment status. Populates
+// user_id so the admin dashboard can show a passenger name/email without a
+// second round trip per row. Reshaped explicitly rather than relying on
+// Mongoose's populate+toJSON subdocument-transform interaction (that
+// behavior is inconsistent across Mongoose versions) — user_id stays a
+// plain string ID, matching every other booking response's shape, with a
+// separate `passenger` object added alongside it.
 export const getBookingsForTrip = async (tripId) => {
   // Confirm the trip exists first so a bad ID gives a clear 404 rather
   // than a silent empty list.
