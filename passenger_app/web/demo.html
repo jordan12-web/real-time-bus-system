@@ -1,78 +1,182 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Guzo Bus — Demo</title>
     <style>
-      * { box-sizing: border-box; }
-      html, body { margin: 0; height: 100%; background: linear-gradient(135deg,#0b1220 0%,#1a2332 100%); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; overflow: hidden; }
-      body { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:20px; }
-      .phone-frame { position:relative; background:#000; border-radius:40px; padding:10px; box-shadow:0 25px 60px rgba(0,0,0,.5), 0 0 0 2px rgba(255,255,255,.08) inset; transition:width .15s ease, height .15s ease; }
-      .phone-screen { width:100%; height:100%; border-radius:28px; overflow:hidden; background:#fff; }
-      .phone-frame iframe { width:100%; height:100%; border:0; display:block; }
-      .demo-label { color:rgba(255,255,255,.6); font-size:13px; letter-spacing:.5px; text-align:center; }
-      body.fullscreen { padding:0; gap:0; }
-      body.fullscreen .phone-frame { width:100vw !important; height:100vh !important; border-radius:0; padding:0; box-shadow:none; }
-      body.fullscreen .phone-screen { border-radius:0; }
-      body.fullscreen .demo-label { display:none; }
+      :root{
+        --bg-a:#0b1220;
+        --bg-b:#1a2332;
+        --frame-radius:40px;
+        --screen-radius:28px;
+        --max-frame-width:420px;
+        --phone-aspect: calc(390 / 844);
+      }
+
+      *{box-sizing:border-box}
+      html,body{height:100%;margin:0}
+      body{
+        min-height:100vh;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+        gap:16px;
+        background:linear-gradient(135deg,var(--bg-a) 0%,var(--bg-b) 100%);
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+        -webkit-font-smoothing:antialiased;
+        -moz-osx-font-smoothing:grayscale;
+        overflow:hidden; /* keep the demo page itself from scrolling */
+      }
+
+      /* container: width-driven, height computed by aspect-ratio */
+      .frame-container{
+        width: min(var(--max-frame-width), 90vw);
+        aspect-ratio: 390 / 844;
+        max-height: calc(100vh - 80px); /* never exceed viewport minus label/padding */
+        display:grid;
+        place-items:center;
+      }
+
+      /* phone frame */
+      .phone-frame{
+        width:100%;
+        height:100%;
+        background:#000;
+        border-radius:var(--frame-radius);
+        padding:10px;
+        box-shadow:0 25px 60px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.06);
+        display:block;
+      }
+
+      .phone-screen{
+        width:100%;
+        height:100%;
+        border-radius:var(--screen-radius);
+        overflow:hidden;
+        background:#fff;
+      }
+
+      .phone-screen iframe{
+        width:100%;
+        height:100%;
+        border:0;
+        display:block;
+        -webkit-font-smoothing:antialiased;
+        image-rendering: -webkit-optimize-contrast;
+      }
+
+      /* small screens: use fullscreen so user can interact naturally */
+      @media (max-width:480px){
+        body{padding:0}
+        .frame-container{width:100vw; height:100vh; aspect-ratio:auto; max-height:100vh}
+        .phone-frame{border-radius:0;padding:0;box-shadow:none}
+        .phone-screen{border-radius:0}
+      }
+
+      .demo-label{
+        color:rgba(255,255,255,0.75);
+        font-size:13px;
+        text-align:center;
+      }
     </style>
   </head>
   <body>
-    <div class="phone-frame" id="phoneFrame">
-      <div class="phone-screen">
-        <iframe id="appFrame" src="./index.html" title="Guzo Bus App" allow="geolocation; camera; microphone; clipboard-read; clipboard-write"></iframe>
+    <div class="frame-container" id="frameContainer" aria-hidden="false">
+      <div class="phone-frame" id="phoneFrame">
+        <div class="phone-screen">
+          <iframe id="appFrame" src="./index.html" title="Guzo Bus App"
+            allow="geolocation; camera; microphone; clipboard-read; clipboard-write"></iframe>
+        </div>
       </div>
     </div>
+
     <div class="demo-label">Guzo Bus — Passenger App Demo</div>
 
     <script>
-      // Unregister any service workers for this origin to avoid stale cached demo files
+      // Unregister service workers to avoid stale caches during demo
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(()=>{});
+        navigator.serviceWorker.getRegistrations()
+          .then(regs => regs.forEach(r => r.unregister()))
+          .catch(()=>{});
       }
 
-      // Cache-bust the iframe so each load requests a fresh index.html
+      // Cache-bust iframe on each load
       const frame = document.getElementById('appFrame');
-      frame.src = './index.html?ts=' + Date.now();
-
-      // Phone sizing logic (iPhone-ish logical aspect)
-      const PHONE_ASPECT = 390 / 844;
-      const MAX_HEIGHT = 900;
-      const MOBILE_BREAKPOINT = 480;
-
-      function resizeFrame() {
-        const frameWrap = document.getElementById('phoneFrame');
-        const body = document.body;
-        const winW = window.innerWidth;
-        const winH = window.innerHeight;
-
-        if (winW <= MOBILE_BREAKPOINT) {
-          body.classList.add('fullscreen');
-          frameWrap.style.width = '';
-          frameWrap.style.height = '';
-          return;
-        }
-        body.classList.remove('fullscreen');
-
-        const availableW = winW * 0.9;
-        const availableH = (winH - 40) * 0.92;
-
-        let height = Math.min(availableH, MAX_HEIGHT);
-        let width = height * PHONE_ASPECT;
-
-        if (width > availableW) {
-          width = availableW;
-          height = width / PHONE_ASPECT;
-        }
-
-        frameWrap.style.width = Math.round(width) + 'px';
-        frameWrap.style.height = Math.round(height) + 'px';
+      function setFrameSrc() {
+        // keep same-origin path but add timestamp to bypass caches
+        frame.src = './index.html?ts=' + Date.now();
       }
+      setFrameSrc();
 
-      window.addEventListener('resize', resizeFrame);
-      window.addEventListener('orientationchange', resizeFrame);
-      resizeFrame();
+      // Ensure the frame never exceeds viewport and is centered.
+      // If browser supports aspect-ratio, CSS handles it; otherwise fallback to JS sizing.
+      (function(){
+        const container = document.getElementById('frameContainer');
+        const supportsAspect = window.CSS && CSS.supports && CSS.supports('aspect-ratio', '1 / 1');
+        const PHONE_ASPECT = 390 / 844;
+        const MAX_HEIGHT = 900;
+
+        function resizeFallback(){
+          const winW = window.innerWidth;
+          const winH = window.innerHeight;
+          // small screens -> fullscreen
+          if (winW <= 480){
+            container.style.width = winW + 'px';
+            container.style.height = winH + 'px';
+            return;
+          }
+          const availableW = Math.min(winW * 0.9, 420);
+          const availableH = Math.min((winH - 80) * 0.92, MAX_HEIGHT);
+          let height = Math.min(availableH, MAX_HEIGHT);
+          let width = height * PHONE_ASPECT;
+          if (width > availableW){
+            width = availableW;
+            height = width / PHONE_ASPECT;
+          }
+          // ensure we never exceed viewport height
+          if (height > winH - 40) {
+            height = winH - 40;
+            width = height * PHONE_ASPECT;
+          }
+          container.style.width = Math.round(width) + 'px';
+          container.style.height = Math.round(height) + 'px';
+        }
+
+        if (!supportsAspect){
+          // run immediately and after a short delay to avoid race conditions
+          resizeFallback();
+          setTimeout(resizeFallback, 100);
+          window.addEventListener('resize', resizeFallback);
+          window.addEventListener('orientationchange', resizeFallback);
+        } else {
+          // even with aspect-ratio, force a tiny repaint after layout settles
+          function forceRepaint(){
+            frame.style.display = 'none';
+            // read layout to force reflow
+            void frame.offsetHeight;
+            frame.style.display = '';
+          }
+          // run twice: immediate and after a short delay
+          forceRepaint();
+          setTimeout(forceRepaint, 120);
+          window.addEventListener('resize', () => setTimeout(forceRepaint, 60));
+        }
+      })();
+
+      // When iframe loads, ensure it is visible and not clipped
+      frame.addEventListener('load', () => {
+        // small delay then ensure container fits viewport
+        setTimeout(() => {
+          // If the container is taller than viewport, shrink it
+          const container = document.getElementById('frameContainer');
+          const rect = container.getBoundingClientRect();
+          if (rect.height > window.innerHeight - 40) {
+            container.style.maxHeight = (window.innerHeight - 40) + 'px';
+          }
+        }, 80);
+      });
     </script>
   </body>
 </html>
