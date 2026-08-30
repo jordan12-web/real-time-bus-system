@@ -1,4 +1,4 @@
-import { createTrip, getAllTrips, getTripById } from '../services/tripService.js';
+import { createTrip, getAllTrips, getTripById, getBookingsForTrip } from '../services/tripService.js';
 
 export const postTrip = async (req, res, next) => {
   try {
@@ -53,6 +53,15 @@ export const getTrip = async (req, res, next) => {
   try {
     const trip = await getTripById(req.params.id);
     return res.status(200).json(trip);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getTripBookings = async (req, res, next) => {
+  try {
+    const bookings = await getBookingsForTrip(req.params.id);
+    return res.status(200).json(bookings);
   } catch (error) {
     next(error);
   }

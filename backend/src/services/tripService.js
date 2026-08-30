@@ -1,4 +1,5 @@
 import Trip from '../models/Trip.js';
+import Booking from '../models/Booking.js';
 
 export const createTrip = async ({
   route_id,
@@ -47,4 +48,29 @@ export const getTripById = async (id) => {
     throw error;
   }
   return trip.toJSON();
+};
+
+
+export const getBookingsForTrip = async (tripId) => {
+  // Confirm the trip exists first so a bad ID gives a clear 404 rather
+  // than a silent empty list.
+  await getTripById(tripId);
+
+  const bookings = await Booking.find({ trip_id: tripId })
+    .populate('user_id', 'full_name email')
+    .sort({ created_at: -1 });
+
+  return bookings.map((b) => {
+    const json = b.toJSON();
+    const populatedUser = json.user_id;
+    if (populatedUser && typeof populatedUser === 'object') {
+      json.passenger = {
+        id: (populatedUser._id ?? populatedUser.id)?.toString(),
+        full_name: populatedUser.full_name,
+        email: populatedUser.email
+      };
+      json.user_id = json.passenger.id;
+    }
+    return json;
+  });
 };

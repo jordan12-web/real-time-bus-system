@@ -6,6 +6,7 @@ import bookingRoutes from './src/routes/bookingRoutes.js';
 import paymentRoutes from './src/routes/paymentRoutes.js';
 import ticketRoutes from './src/routes/ticketRoutes.js';
 import trackingRoutes from './src/routes/trackingRoutes.js';
+import userRoutes from './src/routes/userRoutes.js';
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.get('/payments/failure', (req, res) => {
 app.use('/payments', paymentRoutes);
 app.use('/tickets', ticketRoutes);
 app.use('/tracking', trackingRoutes);
+app.use('/users', userRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

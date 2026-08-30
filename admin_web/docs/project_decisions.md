@@ -5,6 +5,32 @@ consequences. Newest first.
 
 ---
 
+**2026-08-30 — Create Trip's driver field is a dropdown, not a text input.**
+- **What:** `TripsPage.tsx`'s create-trip form fetches `useUsers()`,
+  filters to `role === 'driver'`, and shows a searchable `Select` for
+  `driver_id` instead of asking the admin to paste a raw MongoDB
+  ObjectId.
+- **Why:** Phase 3 and Phase 4 were built in the same session — this was
+  a natural place to make them reinforce each other rather than ship
+  Phase 3 with a UX gap Phase 4 was about to make easy to fix.
+- **Consequences:** If no `driver`-role accounts exist yet, the dropdown
+  is disabled with a message pointing at the Users page. Trip creation
+  is soft-blocked until at least one driver exists — intentional, since
+  a trip with no valid driver assigned isn't useful anyway.
+
+---
+
+**2026-08-30 — Self-demotion guarded server-side, not just client-side.**
+- **What:** `PATCH /users/:id/role` rejects a request where the
+  authenticated admin tries to change their own role away from `admin`.
+- **Why:** A client-side-only guard is trivially bypassed with a direct
+  API call; this is cheap to enforce server-side and prevents an admin
+  from locking themselves out of the only account that can undo it.
+- **Alternatives considered:** No guard at all (rejected — one wrong
+  click and the demo has no working admin account left).
+
+---
+
 **2026-08-29 — Adopted a docs-first workflow for this sub-project.**
 - **What:** Created `project_plan.md`, `project_progress.md`, and this file,
   following a documentation-first AI-assisted development workflow.

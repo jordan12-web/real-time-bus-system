@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-// Token lives in memory, not localStorage — closing the tab ends the admin
-// session. Acceptable, simple security default for this project's scope
-// (see project_plan.md's Non-Functional Requirements section).
+
 let currentToken: string | null = null;
 
 export function setAuthToken(token: string | null) {

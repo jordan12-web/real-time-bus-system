@@ -6,6 +6,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import TripsPage from './pages/TripsPage';
+import TripDetailPage from './pages/TripDetailPage';
 import UsersPage from './pages/UsersPage';
 
 const queryClient = new QueryClient();
@@ -31,6 +32,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <TripsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/trips/:id"
+                element={
+                  <ProtectedRoute>
+                    <TripDetailPage />
                   </ProtectedRoute>
                 }
               />
