@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { initiatePayment, handleWebhook, getPaymentById, verifyAndSyncPayment } from '../services/paymentService.js';
+import { initiatePayment, handleWebhook, getPaymentById, verifyAndSyncPayment, listAllPayments } from '../services/paymentService.js';
 
 
 const isValidChapaSignature = (req) => {
@@ -65,6 +65,15 @@ export const postVerifyPayment = async (req, res, next) => {
   try {
     const result = await verifyAndSyncPayment(req.params.id, req.user.id, req.user.role);
     return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllPayments = async (req, res, next) => {
+  try {
+    const payments = await listAllPayments();
+    return res.status(200).json(payments);
   } catch (error) {
     next(error);
   }

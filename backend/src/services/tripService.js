@@ -1,5 +1,6 @@
 import Trip from '../models/Trip.js';
 import Booking from '../models/Booking.js';
+import Ticket from '../models/Ticket.js';
 
 export const createTrip = async ({
   route_id,
@@ -66,6 +67,12 @@ export const getBookingsForTrip = async (tripId) => {
     .populate('user_id', 'full_name email')
     .sort({ created_at: -1 });
 
+  // One query for all tickets on this trip's bookings, rather than N+1 —
+  // ticket.booking_id is unique, so this is a straightforward id -> ticket map.
+  const bookingIds = bookings.map((b) => b._id);
+  const tickets = await Ticket.find({ booking_id: { $in: bookingIds } });
+  const ticketByBookingId = new Map(tickets.map((t) => [t.booking_id.toString(), t]));
+
   return bookings.map((b) => {
     const json = b.toJSON();
     const populatedUser = json.user_id;
@@ -77,6 +84,31 @@ export const getBookingsForTrip = async (tripId) => {
       };
       json.user_id = json.passenger.id;
     }
+    const ticket = ticketByBookingId.get(b._id.toString());
+    if (ticket) {
+      json.ticket = { id: ticket._id.toString(), status: ticket.status };
+    }
     return json;
   });
+};
+
+const TRIP_STATUSES = ['scheduled', 'in_transit', 'completed', 'cancelled'];
+
+export const updateTripStatus = async (id, newStatus) => {
+  if (!TRIP_STATUSES.includes(newStatus)) {
+    const error = new Error(`status must be one of: ${TRIP_STATUSES.join(', ')}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const trip = await Trip.findById(id);
+  if (!trip) {
+    const error = new Error('Trip not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  trip.status = newStatus;
+  await trip.save();
+  return trip.toJSON();
 };

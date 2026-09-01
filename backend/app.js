@@ -7,6 +7,7 @@ import paymentRoutes from './src/routes/paymentRoutes.js';
 import ticketRoutes from './src/routes/ticketRoutes.js';
 import trackingRoutes from './src/routes/trackingRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
+import adminRoutes from './src/routes/adminRoutes.js';
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/payments', paymentRoutes);
 app.use('/tickets', ticketRoutes);
 app.use('/tracking', trackingRoutes);
 app.use('/users', userRoutes);
+app.use('/admin', adminRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;

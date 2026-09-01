@@ -1,4 +1,4 @@
-import { createTrip, getAllTrips, getTripById, getBookingsForTrip } from '../services/tripService.js';
+import { createTrip, getAllTrips, getTripById, getBookingsForTrip, updateTripStatus } from '../services/tripService.js';
 
 export const postTrip = async (req, res, next) => {
   try {
@@ -62,6 +62,19 @@ export const getTripBookings = async (req, res, next) => {
   try {
     const bookings = await getBookingsForTrip(req.params.id);
     return res.status(200).json(bookings);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const patchTripStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    if (!status) {
+      return res.status(400).json({ error: 'status is required' });
+    }
+    const trip = await updateTripStatus(req.params.id, status);
+    return res.status(200).json(trip);
   } catch (error) {
     next(error);
   }

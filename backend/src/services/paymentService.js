@@ -239,3 +239,25 @@ export const getPaymentById = async (id, userId, role) => {
 
   return payment.toJSON();
 };
+
+
+export const listAllPayments = async () => {
+  const payments = await Payment.find()
+    .populate({ path: 'booking_id', select: 'trip_id user_id seat_number' })
+    .sort({ created_at: -1 });
+
+  return payments.map((p) => {
+    const json = p.toJSON();
+    const populatedBooking = json.booking_id;
+    if (populatedBooking && typeof populatedBooking === 'object') {
+      json.booking = {
+        id: (populatedBooking._id ?? populatedBooking.id)?.toString(),
+        trip_id: populatedBooking.trip_id?.toString(),
+        user_id: populatedBooking.user_id?.toString(),
+        seat_number: populatedBooking.seat_number ?? null
+      };
+      json.booking_id = json.booking.id;
+    }
+    return json;
+  });
+};
