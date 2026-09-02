@@ -13,7 +13,7 @@ class ApiEndpoints {
 
   static const String login = '/auth/login';
   static const String me = '/auth/me';
-  static const String trips = '/trips'; // POST to create, GET to list (role: driver/admin for POST)
-  static const String trackingReport = '/tracking/report'; // role: driver/admin
-  static const String ticketValidate = '/tickets/validate'; // role: driver/admin
+  static const String trips = '/trips'; 
+  static const String trackingReport = '/tracking/report'; 
+  static const String ticketValidate = '/tickets/validate';
 }

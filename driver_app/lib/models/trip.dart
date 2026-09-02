@@ -36,7 +36,7 @@ class Trip {
       arrivalTime: DateTime.tryParse(json['arrival_time']?.toString() ?? '') ??
           DateTime.now(),
       pricePerSeat: (json['price_per_seat'] as num?)?.toDouble() ?? 0.0,
-      // Real enum per Trip.js: scheduled | in_transit | completed | cancelled
+      
       status: json['status']?.toString() ?? 'scheduled',
     );
   }

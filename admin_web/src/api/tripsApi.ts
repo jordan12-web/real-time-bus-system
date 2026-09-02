@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Trip, CreateTripPayload, TripBooking } from '../types/trip';
+import type { Trip, CreateTripPayload, TripBooking, TripStatus } from '../types/trip';
 
 export async function listTrips(): Promise<Trip[]> {
   const response = await apiClient.get<Trip[]>('/trips');
@@ -18,5 +18,10 @@ export async function getTrip(tripId: string): Promise<Trip> {
 
 export async function getTripBookings(tripId: string): Promise<TripBooking[]> {
   const response = await apiClient.get<TripBooking[]>(`/trips/${tripId}/bookings`);
+  return response.data;
+}
+
+export async function updateTripStatus(tripId: string, status: TripStatus): Promise<Trip> {
+  const response = await apiClient.patch<Trip>(`/trips/${tripId}/status`, { status });
   return response.data;
 }

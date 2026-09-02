@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import TripsPage from './pages/TripsPage';
 import TripDetailPage from './pages/TripDetailPage';
 import UsersPage from './pages/UsersPage';
+import PaymentsPage from './pages/PaymentsPage';
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <UsersPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/payments"
+                element={
+                  <ProtectedRoute>
+                    <PaymentsPage />
                   </ProtectedRoute>
                 }
               />

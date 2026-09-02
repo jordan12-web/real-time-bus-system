@@ -5,6 +5,7 @@ import {
   CarOutlined,
   UserOutlined,
   LogoutOutlined,
+  CreditCardOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -15,6 +16,7 @@ const NAV_ITEMS = [
   { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
   { key: '/trips', icon: <CarOutlined />, label: 'Trips' },
   { key: '/users', icon: <UserOutlined />, label: 'Users' },
+  { key: '/payments', icon: <CreditCardOutlined />, label: 'Payments' },
 ];
 
 export default function DashboardShell({ children }: { children: ReactNode }) {

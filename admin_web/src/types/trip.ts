@@ -27,9 +27,8 @@ export interface CreateTripPayload {
 
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'expired';
 
-/** Matches GET /trips/:id/bookings — Booking fields plus the `passenger`
- * object our new backend endpoint adds (see project_decisions.md: reshaped
- * explicitly server-side rather than relying on Mongoose populate+toJSON). */
+export type TicketStatus = 'issued' | 'used' | 'revoked';
+
 export interface TripBooking {
   id: string;
   user_id: string;
@@ -43,5 +42,9 @@ export interface TripBooking {
     id: string;
     full_name: string;
     email: string;
+  };
+  ticket?: {
+    id: string;
+    status: TicketStatus;
   };
 }
