@@ -1,4 +1,5 @@
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 
 
 let currentToken: string | null = null;
@@ -10,6 +11,20 @@ export function setAuthToken(token: string | null) {
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'https://real-time-bus-system.onrender.com',
   timeout: 35000,
+});
+
+
+axiosRetry(apiClient, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    return (
+      axiosRetry.isNetworkError(error) ||
+      axiosRetry.isRetryableError(error) ||
+      error.code === 'ERR_NETWORK' ||
+      error.code === 'ECONNABORTED'
+    );
+  },
 });
 
 apiClient.interceptors.request.use((config) => {
