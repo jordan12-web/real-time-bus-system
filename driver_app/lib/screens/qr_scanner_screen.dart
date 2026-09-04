@@ -18,6 +18,8 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   bool _hasCameraPermission = false;
   bool _isProcessing = false;
 
+  bool _awaitingNextScan = false;
+
   @override
   void initState() {
     super.initState();
@@ -36,14 +38,25 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   }
 
   Future<void> _handleDetection(BarcodeCapture capture) async {
-    if (_isProcessing) return;
+    if (_isProcessing || _awaitingNextScan) return;
     final barcode = capture.barcodes.firstOrNull;
     final rawValue = barcode?.rawValue;
     if (rawValue == null || rawValue.isEmpty) return;
 
     setState(() => _isProcessing = true);
     await ref.read(driverTripControllerProvider.notifier).validateTicket(rawValue);
-    setState(() => _isProcessing = false);
+    await _controller.stop();
+    if (mounted) {
+      setState(() {
+        _isProcessing = false;
+        _awaitingNextScan = true;
+      });
+    }
+  }
+
+  Future<void> _handleScanNext() async {
+    await _controller.start();
+    if (mounted) setState(() => _awaitingNextScan = false);
   }
 
   @override
@@ -87,36 +100,52 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : result == null
                     ? const Center(child: Text('Point the camera at a passenger\'s QR code.'))
-                    : Card(
-                        color: result.valid ? Colors.green.shade50 : Colors.red.shade50,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    result.valid ? Icons.check_circle : Icons.cancel,
-                                    color: result.valid ? Colors.green : Colors.red,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    result.valid ? 'Valid — passenger admitted' : 'Invalid ticket',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ],
+                    : SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Card(
+                              color: result.valid ? Colors.green.shade50 : Colors.red.shade50,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          result.valid ? Icons.check_circle : Icons.cancel,
+                                          color: result.valid ? Colors.green : Colors.red,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          result.valid ? 'Valid — passenger admitted' : 'Invalid ticket',
+                                          style: const TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    if (result.reason != null) ...[
+                                      const SizedBox(height: 6),
+                                      Text(result.reason!),
+                                    ],
+                                    if (result.bookingId != null) ...[
+                                      const SizedBox(height: 6),
+                                      Text('Booking: ${result.bookingId}'),
+                                    ],
+                                  ],
+                                ),
                               ),
-                              if (result.reason != null) ...[
-                                const SizedBox(height: 6),
-                                Text(result.reason!),
-                              ],
-                              if (result.bookingId != null) ...[
-                                const SizedBox(height: 6),
-                                Text('Booking: ${result.bookingId}'),
-                              ],
+                            ),
+                            if (_awaitingNextScan) ...[
+                              const SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                key: const Key('scan_next_ticket_button'),
+                                icon: const Icon(Icons.qr_code_scanner),
+                                label: const Text('Scan Next Ticket'),
+                                onPressed: _handleScanNext,
+                              ),
                             ],
-                          ),
+                          ],
                         ),
                       ),
           ),
