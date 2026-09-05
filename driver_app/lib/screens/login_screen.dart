@@ -74,12 +74,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             onPressed: _handleLogin,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Only accounts with role "driver" or "admin" can sign in here. '
-            'See migration/README.md if you need to promote an account.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 12, color: Colors.grey),
-          ),
+         
         ],
       ),
     );
