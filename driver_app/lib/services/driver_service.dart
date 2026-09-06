@@ -83,8 +83,8 @@ class DriverService {
           'tripId': tripId,
           'latitude': latitude,
           'longitude': longitude,
-          if (speedKmh != null) 'speed_kmh': speedKmh,
-          if (heading != null) 'heading': heading,
+          'speed_kmh': ?speedKmh,
+          'heading': ?heading,
         },
       );
     } on DioException catch (error) {

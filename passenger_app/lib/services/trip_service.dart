@@ -42,4 +42,16 @@ class TripService {
       throw _client.handleDioError(error);
     }
   }
+
+  Future<List<String>> getOccupiedSeats(String tripId) async {
+    try {
+      final response = await _client.sendWithRetry(
+        () => _client.dio.get<Map<String, dynamic>>('/trips/$tripId/occupied-seats'),
+      );
+      final raw = response.data?['occupied_seats'] as List<dynamic>? ?? [];
+      return raw.map((e) => e.toString()).toList();
+    } on DioException catch (error) {
+      throw _client.handleDioError(error);
+    }
+  }
 }

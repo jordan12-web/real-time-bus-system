@@ -1,4 +1,4 @@
-import { createTrip, getAllTrips, getTripById, getBookingsForTrip, updateTripStatus } from '../services/tripService.js';
+import { createTrip, getAllTrips, getTripById, getBookingsForTrip, updateTripStatus, getOccupiedSeatsForTrip } from '../services/tripService.js';
 
 export const postTrip = async (req, res, next) => {
   try {
@@ -75,6 +75,15 @@ export const patchTripStatus = async (req, res, next) => {
     }
     const trip = await updateTripStatus(req.params.id, status);
     return res.status(200).json(trip);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOccupiedSeats = async (req, res, next) => {
+  try {
+    const seats = await getOccupiedSeatsForTrip(req.params.id);
+    return res.status(200).json({ occupied_seats: seats });
   } catch (error) {
     next(error);
   }

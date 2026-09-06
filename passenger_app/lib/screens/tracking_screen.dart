@@ -218,13 +218,32 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               userAgentPackageName: 'com.example.passenger_app',
                             ),
-                            if (originLatLng != null && destinationLatLng != null)
+                            if (busLatLng != null && destinationLatLng != null)
+                              PolylineLayer(
+                                polylines: [
+                                  
+                                  Polyline(
+                                    points: [busLatLng, destinationLatLng],
+                                    strokeWidth: 4,
+                                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.85),
+                                  ),
+                                
+                                  if (originLatLng != null)
+                                    Polyline(
+                                      points: [originLatLng, busLatLng],
+                                      strokeWidth: 3,
+                                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.25),
+                                    ),
+                                ],
+                              )
+                            else if (originLatLng != null && destinationLatLng != null)
+                          
                               PolylineLayer(
                                 polylines: [
                                   Polyline(
                                     points: [originLatLng, destinationLatLng],
                                     strokeWidth: 4,
-                                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
+                                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
                                   ),
                                 ],
                               ),

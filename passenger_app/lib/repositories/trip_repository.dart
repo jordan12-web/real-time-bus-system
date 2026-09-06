@@ -51,5 +51,10 @@ class TripRepository {
     return Trip.fromJson(raw);
   }
 
+  Future<Set<String>> getOccupiedSeats(String tripId) async {
+    final seats = await _service.getOccupiedSeats(tripId);
+    return seats.toSet();
+  }
+
   void clearCache() => _cachedTrips = null;
 }

@@ -92,6 +92,23 @@ export const getBookingsForTrip = async (tripId) => {
   });
 };
 
+// Public-safe: seat numbers only, no passenger names/emails/payment info —
+// this is what the passenger app's seat map needs before booking, and it's
+// deliberately NOT the same data as getBookingsForTrip (that one is
+// admin/driver-only and includes passenger PII). 'pending' bookings count
+// as occupied too — they hold a temporary seat lock during checkout, not
+// just confirmed ones — cancelled/expired don't, since that seat is free
+// again.
+export const getOccupiedSeatsForTrip = async (tripId) => {
+  const bookings = await Booking.find({
+    trip_id: tripId,
+    status: { $in: ['pending', 'confirmed'] },
+    seat_number: { $ne: null }
+  }).select('seat_number');
+
+  return bookings.map((b) => b.seat_number).filter(Boolean);
+};
+
 const TRIP_STATUSES = ['scheduled', 'in_transit', 'completed', 'cancelled'];
 
 export const updateTripStatus = async (id, newStatus) => {

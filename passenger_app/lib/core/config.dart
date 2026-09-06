@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Environment configuration loaded from `.env` via flutter_dotenv.
+
 class Config {
   static Map<String, String> get _env {
     try {

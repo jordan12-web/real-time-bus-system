@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../controllers/auth_controller.dart' show tripRepositoryProvider;
 import '../controllers/booking_controller.dart';
 import '../models/trip.dart';
 import '../routes/app_routes.dart';
@@ -20,10 +21,45 @@ class BookingScreen extends ConsumerStatefulWidget {
 
 class _BookingScreenState extends ConsumerState<BookingScreen> {
   String? _selectedSeat;
+  Trip? _trip;
+  bool _isLoadingSeats = true;
+  String? _seatsError;
+  Set<String> _occupiedSeats = {};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_trip == null) {
+      final trip = ModalRoute.of(context)?.settings.arguments as Trip?;
+      if (trip != null) {
+        _trip = trip;
+        _loadOccupiedSeats(trip.id);
+      }
+    }
+  }
+
+  Future<void> _loadOccupiedSeats(String tripId) async {
+    try {
+      final seats = await ref.read(tripRepositoryProvider).getOccupiedSeats(tripId);
+      if (mounted) {
+        setState(() {
+          _occupiedSeats = seats;
+          _isLoadingSeats = false;
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _seatsError = 'Could not load seat availability. Pull down to retry.';
+          _isLoadingSeats = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final trip = ModalRoute.of(context)?.settings.arguments as Trip?;
+    final trip = _trip;
     final bookingState = ref.watch(bookingControllerProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = isDark ? DesignTokens.darkPrimary : DesignTokens.primary;
@@ -71,7 +107,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Route ${trip.routeId} · ${trip.pricePerSeat.toStringAsFixed(0)} ETB / seat',
+                        '${trip.pricePerSeat.toStringAsFixed(0)} ETB / seat',
                         style: TextStyle(
                           fontSize: 13,
                           color: isDark
@@ -88,22 +124,51 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
           const SizedBox(height: DesignTokens.spaceSm),
 
           // ── Bus Cabin Seat Map ───────────────────────────────────────────
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: BusSeatMap(
-                  totalSeats: 20,
-                  selectedSeat: _selectedSeat,
-                  onSeatSelected: (seatNum) {
-                    setState(() => _selectedSeat = seatNum);
-                    ref
-                        .read(bookingControllerProvider.notifier)
-                        .selectSeat(seatNum);
-                  },
-                ),
+          if (_seatsError != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(DesignTokens.spaceSm),
+              margin: const EdgeInsets.only(bottom: DesignTokens.spaceSm),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(DesignTokens.radiusGlobal),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+              ),
+              child: Text(
+                _seatsError!,
+                style: const TextStyle(fontSize: 13),
+                textAlign: TextAlign.center,
               ),
             ),
+          Expanded(
+            child: _isLoadingSeats
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: () {
+                      setState(() {
+                        _isLoadingSeats = true;
+                        _seatsError = null;
+                      });
+                      return _loadOccupiedSeats(trip.id);
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: BusSeatMap(
+                          totalSeats: 20,
+                          selectedSeat: _selectedSeat,
+                          occupiedSeats: _occupiedSeats,
+                          onSeatSelected: (seatNum) {
+                            setState(() => _selectedSeat = seatNum);
+                            ref
+                                .read(bookingControllerProvider.notifier)
+                                .selectSeat(seatNum);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
           ),
 
           // ── Bottom Summary & Confirmation Bar ────────────────────────────
