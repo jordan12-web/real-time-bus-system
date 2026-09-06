@@ -11,6 +11,7 @@ class AppScaffold extends ConsumerWidget {
   final Widget child;
   final List<Widget>? actions;
   final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
   /// Detail screens use left-aligned titles per design system.
   final bool centerTitle;
 
@@ -20,6 +21,7 @@ class AppScaffold extends ConsumerWidget {
     required this.child,
     this.actions,
     this.floatingActionButton,
+    this.bottomNavigationBar,
     this.centerTitle = true,
   });
 
@@ -69,6 +71,7 @@ class AppScaffold extends ConsumerWidget {
           ),
         ),
         floatingActionButton: floatingActionButton,
+        bottomNavigationBar: bottomNavigationBar,
       ),
     );
   }

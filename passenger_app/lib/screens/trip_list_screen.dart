@@ -68,12 +68,6 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
           },
         ),
         IconButton(
-          key: const Key('my_trips_button'),
-          icon: const Icon(Icons.confirmation_number_rounded),
-          tooltip: 'My Trips',
-          onPressed: () => AppRoutes.navigateToMyTrips(context),
-        ),
-        IconButton(
           key: const Key('logout_button'),
           icon: const Icon(Icons.logout_rounded),
           tooltip: 'Log out',

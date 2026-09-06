@@ -156,29 +156,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceMd),
 
-          // Quick Actions Row
-          Row(
-            children: [
-              Expanded(
-                child: PolishedButton(
-                  buttonKey: const Key('create_trip_button'),
-                  label: 'Create Trip',
-                  icon: Icons.add_circle_outline_rounded,
-                  variant: PolishedButtonVariant.primary,
-                  onPressed: () => Navigator.of(context).pushNamed('/create_trip'),
-                ),
-              ),
-              const SizedBox(width: DesignTokens.spaceSm),
-              Expanded(
-                child: PolishedButton(
-                  buttonKey: const Key('scan_qr_button'),
-                  label: 'Scan Ticket',
-                  icon: Icons.qr_code_scanner_rounded,
-                  variant: PolishedButtonVariant.secondary,
-                  onPressed: () => Navigator.of(context).pushNamed('/scan_qr'),
-                ),
-              ),
-            ],
+          // Quick Action: Scan Ticket
+          PolishedButton(
+            buttonKey: const Key('scan_qr_button'),
+            label: 'Scan Passenger Ticket QR',
+            icon: Icons.qr_code_scanner_rounded,
+            variant: PolishedButtonVariant.primary,
+            onPressed: () => Navigator.of(context).pushNamed('/scan_qr'),
           ),
           const SizedBox(height: DesignTokens.spaceLg),
 
@@ -276,7 +260,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ),
                             const SizedBox(height: DesignTokens.spaceXs),
                             Text(
-                              'Tap "Create Trip" above to schedule your first intercity route and broadcast live location.',
+                              'Intercity trips are created & assigned by the System Administrator. Pull to refresh when assigned.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,

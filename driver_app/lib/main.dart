@@ -3,7 +3,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'controllers/auth_controller.dart';
-import 'screens/create_trip_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/qr_scanner_screen.dart';
@@ -60,7 +59,6 @@ class DriverApp extends ConsumerWidget {
           routes: {
             '/login': (context) => const LoginScreen(),
             '/dashboard': (context) => const DashboardScreen(),
-            '/create_trip': (context) => const CreateTripScreen(),
             '/trip_detail': (context) => const TripDetailScreen(),
             '/scan_qr': (context) => const QrScannerScreen(),
           },

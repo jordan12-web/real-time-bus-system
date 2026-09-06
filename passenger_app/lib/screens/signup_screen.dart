@@ -275,14 +275,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                   decoration: BoxDecoration(
                                     color: Theme.of(
                                       context,
-                                    ).colorScheme.error.withOpacity(0.1),
+                                    ).colorScheme.error.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(
                                       DesignTokens.radiusGlobal,
                                     ),
                                     border: Border.all(
                                       color: Theme.of(
                                         context,
-                                      ).colorScheme.error.withOpacity(0.3),
+                                      ).colorScheme.error.withValues(alpha: 0.3),
                                     ),
                                   ),
                                   child: Text(

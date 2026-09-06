@@ -13,8 +13,8 @@ import 'screens/splash_screen.dart';
 import 'screens/ticket_screen.dart';
 import 'screens/tracking_screen.dart';
 import 'screens/trip_detail_screen.dart';
-import 'screens/trip_list_screen.dart';
 import 'theme/theme_provider.dart';
+import 'widgets/main_navigation_shell.dart';
 
 class AppKeys {
   AppKeys._();
@@ -69,7 +69,7 @@ class PassengerApp extends StatelessWidget {
             AppRoutes.onboarding: (context) => const OnboardingScreen(),
             AppRoutes.signup: (context) => const SignupScreen(),
             AppRoutes.login: (context) => const LoginScreen(),
-            AppRoutes.tripList: (context) => const TripListScreen(),
+            AppRoutes.tripList: (context) => const MainNavigationShell(),
             AppRoutes.tripDetail: (context) => const TripDetailScreen(),
             AppRoutes.booking: (context) => const BookingScreen(),
             AppRoutes.payment: (context) => const PaymentScreen(),
