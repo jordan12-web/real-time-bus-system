@@ -5,7 +5,7 @@ import '../theme/design_tokens.dart';
 import '../theme/theme_provider.dart';
 import 'gradient_background.dart';
 
-/// Shared driver app scaffold with translucent AppBar and gradient accent line.
+
 class AppScaffold extends ConsumerWidget {
   final String title;
   final Widget child;

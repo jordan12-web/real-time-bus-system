@@ -9,7 +9,7 @@ import '../widgets/guzo_logo.dart';
 import '../widgets/polished_button.dart';
 import '../widgets/polished_card.dart';
 
-/// Driver Login Screen with keyboard-aware scrolling, focus traversal, and polished Guzo design.
+
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -61,7 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Theme mode toggle in top-right corner
+              
               Positioned(
                 top: DesignTokens.spaceSm,
                 right: DesignTokens.spaceSm,
@@ -83,14 +83,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Guzo Driver Branding
+                        
                         const GuzoLogo(
                           size: 38,
                           tagline: 'Driver Portal & Operations',
                         ),
                         const SizedBox(height: DesignTokens.spaceLg),
 
-                        // Centered Form Card
+                        
                         PolishedCard(
                           child: AutofillGroup(
                             child: Form(
@@ -118,7 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   const SizedBox(height: DesignTokens.spaceLg),
 
-                                  // Email input field
+                                  
                                   Semantics(
                                     label: 'Driver email address input',
                                     child: TextFormField(
@@ -149,7 +149,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   const SizedBox(height: DesignTokens.spaceMd),
 
-                                  // Password input field
+                                  
                                   Semantics(
                                     label: 'Driver password input',
                                     child: TextFormField(
@@ -187,7 +187,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                   const SizedBox(height: DesignTokens.spaceLg),
 
-                                  // Error Banner
+                                  
                                   if (authState.errorMessage != null) ...[
                                     Container(
                                       padding: const EdgeInsets.all(DesignTokens.spaceSm),
@@ -210,7 +210,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     const SizedBox(height: DesignTokens.spaceMd),
                                   ],
 
-                                  // Login Button
+                                  
                                   PolishedButton(
                                     buttonKey: const Key('login_button'),
                                     label: 'Log In',

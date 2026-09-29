@@ -72,7 +72,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
       title: 'Ticket Validation',
       child: Column(
         children: [
-          // Top Viewfinder Box
+          
           Expanded(
             flex: 3,
             child: !_hasCameraPermission
@@ -139,7 +139,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
                             controller: _controller,
                             onDetect: _handleDetection,
                           ),
-                          // Viewfinder Reticle Overlay
+                          
                           Container(
                             width: 220,
                             height: 220,
@@ -158,7 +158,7 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceMd),
 
-          // Bottom Validation Result Card
+          
           Expanded(
             flex: 2,
             child: tripState.isLoading

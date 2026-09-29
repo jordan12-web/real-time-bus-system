@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/design_tokens.dart';
 
-/// Styled brand header with "Guzo" script lettering and bus icon badge for Driver Portal.
+
 class GuzoLogo extends StatelessWidget {
   final double size;
   final bool showTagline;

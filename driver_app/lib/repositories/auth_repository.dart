@@ -36,11 +36,11 @@ class AuthRepository {
 
   AuthRepository(this._client);
 
-  /// Logs in with an EXISTING account. There is no self-signup for drivers —
-  /// POST /auth/signup always creates a 'passenger' (see backend/src/services
-  /// /authService.js: registerUser never accepts a role). A driver account
-  /// has to already exist with role='driver', set via a manual DB edit — see
-  /// migration/README.md for the exact command.
+  
+  
+  
+  
+  
   Future<DriverUser> login(String email, String password) async {
     try {
       final response = await _client.dio.post<Map<String, dynamic>>(

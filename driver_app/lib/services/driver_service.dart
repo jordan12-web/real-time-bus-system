@@ -18,11 +18,11 @@ class DriverService {
     return DriverApiException(message);
   }
 
-  /// POST /trips — role: driver or admin (see backend/src/routes/tripRoutes.js).
-  /// route_id and vehicle_id are free-text strings on the real schema (no
-  /// separate Route/Vehicle collections exist) — any non-empty string works.
-  /// driver_id must be the CALLING driver's own user id (self-assignment);
-  /// pass it explicitly rather than assuming the backend infers it.
+  
+  
+  
+  
+  
   Future<Map<String, dynamic>> createTrip({
     required String routeId,
     required String vehicleId,
@@ -53,9 +53,9 @@ class DriverService {
     }
   }
 
-  /// GET /trips — public, unfiltered by driver (no driver-scoped listing
-  /// endpoint exists on the backend). Caller filters client-side by
-  /// driver_id == current user's id.
+  
+  
+  
   Future<List<dynamic>> listAllTrips() async {
     try {
       final response = await _client.dio.get<List<dynamic>>(ApiEndpoints.trips);
@@ -65,10 +65,10 @@ class DriverService {
     }
   }
 
-  /// POST /tracking/report — role: driver or admin. Field casing verified
-  /// against docs/api_key_format.md: tripId is camelCase, everything else
-  /// in this body is snake_case — this is a deliberate, documented quirk of
-  /// the real contract, not a typo.
+  
+  
+  
+  
   Future<void> reportLocation({
     required String tripId,
     required double latitude,
@@ -92,7 +92,7 @@ class DriverService {
     }
   }
 
-  /// POST /tickets/validate — role: driver or admin.
+  
   Future<Map<String, dynamic>> validateTicket(String qrCodeData) async {
     try {
       final response = await _client.dio.post<Map<String, dynamic>>(
@@ -101,9 +101,9 @@ class DriverService {
       );
       return response.data ?? {};
     } on DioException catch (error) {
-      // A 400 here is a NORMAL "invalid ticket" response, not a transport
-      // failure — the backend returns {valid:false, reason:...} with a 400
-      // status. Surface that body instead of throwing generically.
+      
+      
+      
       if (error.response?.statusCode == 400 && error.response?.data is Map) {
         return error.response!.data as Map<String, dynamic>;
       }

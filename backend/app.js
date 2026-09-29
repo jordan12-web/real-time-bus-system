@@ -8,7 +8,7 @@ import ticketRoutes from './src/routes/ticketRoutes.js';
 import trackingRoutes from './src/routes/trackingRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import adminRoutes from './src/routes/adminRoutes.js';
-
+import aiRoutes from './src/routes/aiRoutes.js';
 const app = express();
 
 
@@ -35,7 +35,7 @@ app.use('/tickets', ticketRoutes);
 app.use('/tracking', trackingRoutes);
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);
-
+app.use('/ai', aiRoutes);
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';

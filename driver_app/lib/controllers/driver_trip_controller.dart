@@ -110,8 +110,8 @@ class DriverTripController extends StateNotifier<DriverTripState> {
     }
   }
 
-  /// Manual, single-shot location emit — the reliable path for a live demo:
-  /// no permission dialogs, no dependency on GPS signal indoors, deterministic.
+  
+  
   Future<void> emitLocation({
     required String tripId,
     required double latitude,
@@ -136,10 +136,10 @@ class DriverTripController extends StateNotifier<DriverTripState> {
     }
   }
 
-  /// Real-GPS auto-broadcast, best-effort. Falls back silently (does nothing
-  /// but flip isBroadcasting back off) if permission is denied or location
-  /// services are off — [emitLocation] above remains available regardless,
-  /// so a permission failure here never blocks the demo.
+  
+  
+  
+  
   Future<void> startBroadcast(String tripId, {Duration interval = const Duration(seconds: 5)}) async {
     final granted = await AppPermissions.requestLocation();
     if (!granted) {

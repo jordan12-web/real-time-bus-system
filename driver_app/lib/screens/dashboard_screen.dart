@@ -77,7 +77,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Driver Profile Overview Card
+          
           PolishedCard(
             child: Row(
               children: [
@@ -156,7 +156,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceMd),
 
-          // Quick Action: Scan Ticket
+          
           PolishedButton(
             buttonKey: const Key('scan_qr_button'),
             label: 'Scan Passenger Ticket QR',
@@ -166,7 +166,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceLg),
 
-          // Trips Section Header
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -200,7 +200,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceSm),
 
-          // Error Notification Banner
+          
           if (tripState.errorMessage != null) ...[
             Container(
               padding: const EdgeInsets.all(DesignTokens.spaceSm),
@@ -234,7 +234,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             const SizedBox(height: DesignTokens.spaceSm),
           ],
 
-          // Trip List
+          
           Expanded(
             child: tripState.isLoading && tripState.trips.isEmpty
                 ? const Center(child: CircularProgressIndicator())
@@ -286,7 +286,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Top row: Route origin -> destination + Status
+                                
                                 Row(
                                   children: [
                                     Expanded(
@@ -348,7 +348,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   child: Divider(height: 1),
                                 ),
 
-                                // Metadata grid: Departure time, Vehicle, Price
+                                
                                 Row(
                                   children: [
                                     Expanded(

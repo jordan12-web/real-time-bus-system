@@ -61,7 +61,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
       title: 'Trip Management',
       child: ListView(
         children: [
-          // Header Card with Trip ID
+          
           PolishedCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +131,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceMd),
 
-          // Section 1: Auto GPS Broadcaster Card
+          
           PolishedCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +180,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceMd),
 
-          // Section 2: Manual Location Fallback Card
+          
           PolishedCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +209,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                 ),
                 const SizedBox(height: DesignTokens.spaceMd),
 
-                // Presets Quick Chips
+                
                 const Text(
                   'Demo Location Presets:',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey),
@@ -250,7 +250,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                 ),
                 const SizedBox(height: DesignTokens.spaceSm),
 
-                // Latitude Field
+                
                 TextField(
                   key: const Key('latitude_field'),
                   controller: _latController,
@@ -262,7 +262,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                 ),
                 const SizedBox(height: DesignTokens.spaceSm),
 
-                // Longitude Field
+                
                 TextField(
                   key: const Key('longitude_field'),
                   controller: _lngController,
@@ -274,7 +274,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                 ),
                 const SizedBox(height: DesignTokens.spaceMd),
 
-                // Emit Location Button
+                
                 PolishedButton(
                   buttonKey: const Key('emit_location_button'),
                   label: 'Emit Single Location',
@@ -287,7 +287,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
           ),
           const SizedBox(height: DesignTokens.spaceMd),
 
-          // Status & Error Banners
+          
           if (tripState.lastLocationStatus != null) ...[
             Container(
               padding: const EdgeInsets.all(DesignTokens.spaceSm),

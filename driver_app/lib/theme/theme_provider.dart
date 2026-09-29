@@ -27,7 +27,7 @@ class ThemeProvider extends ChangeNotifier {
       final stored = await storage.read(key: _themePrefKey);
       if (stored == 'dark') mode = ThemeMode.dark;
     } catch (_) {
-      // Fall back to default light mode
+      
     }
     return ThemeProvider._(storage, mode, true);
   }
@@ -41,7 +41,7 @@ class ThemeProvider extends ChangeNotifier {
     try {
       await _storage.write(key: _themePrefKey, value: enabled ? 'dark' : 'light');
     } catch (_) {
-      // Ignore secure storage errors in non-persistent environments
+      
     }
     notifyListeners();
   }

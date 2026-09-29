@@ -29,9 +29,9 @@ class DriverTripRepository {
     return Trip.fromJson(raw);
   }
 
-  /// Lists trips assigned to [driverId]. Filters client-side since the
-  /// backend has no driver-scoped trip listing endpoint (GET /trips is
-  /// public and unfiltered by driver).
+  
+  
+  
   Future<List<Trip>> listMyTrips(String driverId) async {
     final rawList = await _service.listAllTrips();
     return rawList

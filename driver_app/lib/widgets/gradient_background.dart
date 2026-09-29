@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/design_tokens.dart';
 
-/// Full-screen gradient background wrapper used by driver screens.
+
 class GradientBackground extends StatelessWidget {
   final Widget child;
 

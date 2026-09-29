@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/design_tokens.dart';
 
-/// Rounded card with elevation lift animation on press for driver app.
+
 class PolishedCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;

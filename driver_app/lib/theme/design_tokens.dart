@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-/// Modern Gradient design system tokens for Guzo Driver App.
+
 abstract final class DesignTokens {
-  // ── Brand colors (light) ──────────────────────────────────────────────
+  
   static const Color primary = Color(0xFF10B981);
   static const Color accent = Color(0xFF6366F1);
   static const Color backgroundStart = Color(0xFFF0FDF4);
   static const Color backgroundEnd = Color(0xFFECFDF5);
 
-  // ── Brand colors (dark) ───────────────────────────────────────────────
+  
   static const Color darkBackground = Color(0xFF0B1220);
   static const Color darkSurface = Color(0xFF151D2E);
   static const Color darkPrimary = Color(0xFF0FBF9A);
   static const Color darkAccent = Color(0xFF7C7BFF);
 
-  // ── Status badge colors ───────────────────────────────────────────────
+  
   static const Color statusPending = Color(0xFFF59E0B);
   static const Color statusConfirmed = Color(0xFF10B981);
   static const Color statusCancelled = Color(0xFFEF4444);
 
-  // ── Spacing (8px base grid) ───────────────────────────────────────────
+  
   static const double spaceXs = 8;
   static const double spaceSm = 12;
   static const double spaceMd = 16;
   static const double spaceLg = 24;
   static const double spaceXl = 32;
 
-  // ── Radii ─────────────────────────────────────────────────────────────
+  
   static const double radiusGlobal = 12;
   static const double radiusPill = 24;
   static const double buttonHeight = 48;
 
-  // ── Shadows ───────────────────────────────────────────────────────────
+  
   static List<BoxShadow> cardShadow({bool pressed = false}) => [
         BoxShadow(
           color: Color.fromRGBO(16, 24, 40, pressed ? 0.12 : 0.06),
@@ -41,7 +41,7 @@ abstract final class DesignTokens {
         ),
       ];
 
-  // ── Motion ────────────────────────────────────────────────────────────
+  
   static const Duration microInteraction = Duration(milliseconds: 100);
   static const Duration pageTransition = Duration(milliseconds: 280);
   static const Curve easing = Cubic(0.2, 0.8, 0.2, 1);
@@ -73,7 +73,7 @@ abstract final class DesignTokens {
     );
   }
 
-  // Typography
+  
   static TextTheme textTheme({required Brightness brightness}) {
     final color = brightness == Brightness.dark
         ? Colors.white

@@ -4,7 +4,7 @@ import '../theme/design_tokens.dart';
 
 enum PolishedButtonVariant { primary, secondary }
 
-/// Pill-shaped button with press scale + shadow lift animation for driver app.
+
 class PolishedButton extends StatefulWidget {
   final Key? buttonKey;
   final String label;
