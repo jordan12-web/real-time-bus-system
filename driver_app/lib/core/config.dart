@@ -4,7 +4,7 @@ class Config {
   Config._();
 
   static String get apiBaseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'https:
+      dotenv.env['API_BASE_URL'] ?? 'https://api.example.com';
 }
 
 

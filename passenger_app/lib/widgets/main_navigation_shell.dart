@@ -5,6 +5,8 @@ import '../screens/tracking_screen.dart';
 import '../screens/trip_list_screen.dart';
 import '../theme/design_tokens.dart';
 
+import 'ai_assistant_sheet.dart';
+
 /// Main passenger navigation shell featuring a clean bottom NavigationBar.
 class MainNavigationShell extends StatefulWidget {
   final int initialIndex;
@@ -42,6 +44,22 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'spa_assistant_fab',
+        onPressed: () => AiAssistantSheet.show(context),
+        icon: const Icon(Icons.auto_awesome, size: 18),
+        label: const Text(
+          'Ask AI',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
+          ),
+        ),
+        elevation: 3,
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
