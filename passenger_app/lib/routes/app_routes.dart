@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/trip.dart';
+
 class AppRoutes {
   AppRoutes._();
 
@@ -16,7 +18,11 @@ class AppRoutes {
   static const String myTrips = '/my-trips';
 
   static Future<T?> navigateToSplash<T>(BuildContext context) {
-    return Navigator.pushNamedAndRemoveUntil<T>(context, splash, (route) => false);
+    return Navigator.pushNamedAndRemoveUntil<T>(
+      context,
+      splash,
+      (route) => false,
+    );
   }
 
   static Future<T?> navigateToOnboarding<T>(BuildContext context) {
@@ -24,30 +30,44 @@ class AppRoutes {
   }
 
   static Future<T?> navigateToSignup<T>(BuildContext context) {
-    return Navigator.pushNamedAndRemoveUntil<T>(context, signup, (route) => false);
+    return Navigator.pushNamedAndRemoveUntil<T>(
+      context,
+      signup,
+      (route) => false,
+    );
   }
 
   static Future<T?> navigateToLogin<T>(BuildContext context) {
-    return Navigator.pushNamedAndRemoveUntil<T>(context, login, (route) => false);
+    return Navigator.pushNamedAndRemoveUntil<T>(
+      context,
+      login,
+      (route) => false,
+    );
   }
 
   static Future<T?> navigateToTripList<T>(BuildContext context) {
     return Navigator.pushReplacementNamed<T, dynamic>(context, tripList);
   }
 
-  static Future<T?> navigateToTripDetail<T>(BuildContext context, String tripId) {
-    return Navigator.pushNamed<T>(context, tripDetail, arguments: tripId);
+  static Future<T?> navigateToTripDetail<T>(BuildContext context, Trip trip) {
+    return Navigator.pushNamed<T>(context, tripDetail, arguments: trip);
   }
 
   static Future<T?> navigateToBooking<T>(BuildContext context, String tripId) {
     return Navigator.pushNamed<T>(context, booking, arguments: tripId);
   }
 
-  static Future<T?> navigateToPayment<T>(BuildContext context, String bookingId) {
+  static Future<T?> navigateToPayment<T>(
+    BuildContext context,
+    String bookingId,
+  ) {
     return Navigator.pushNamed<T>(context, payment, arguments: bookingId);
   }
 
-  static Future<T?> navigateToTicket<T>(BuildContext context, String bookingId) {
+  static Future<T?> navigateToTicket<T>(
+    BuildContext context,
+    String bookingId,
+  ) {
     return Navigator.pushNamed<T>(context, ticket, arguments: bookingId);
   }
 

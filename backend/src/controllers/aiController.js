@@ -19,6 +19,9 @@ export const handleAiQuery = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error in AI Assistant handler:', error);
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
     next(error);
   }
 };

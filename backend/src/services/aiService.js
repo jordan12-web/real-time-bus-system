@@ -4,7 +4,56 @@ import Trip from "../models/Trip.js";
 import "dotenv/config";
 import TripLocation from "../models/TripLocation.js";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+class AssistantServiceError extends Error {
+  constructor(message, statusCode = 503) {
+    super(message);
+    this.name = "AssistantServiceError";
+    this.statusCode = statusCode;
+  }
+}
+
+const assistantUnavailableMessage =
+  "The Smart Passenger Assistant is temporarily unavailable. Please try again shortly.";
+
+const fastModel = process.env.GEMINI_FAST_MODEL || "gemini-3.5-flash-lite";
+const fallbackModelName = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash";
+
+const fastGenerationConfig = {
+  responseMimeType: "application/json",
+  temperature: 0.2,
+  maxOutputTokens: 180,
+  thinkingConfig: { thinkingLevel: "minimal" },
+};
+
+const createGenerativeAI = () => {
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+
+  if (!apiKey || !apiKey.startsWith("AIza")) {
+    throw new AssistantServiceError(assistantUnavailableMessage);
+  }
+
+  return new GoogleGenerativeAI(apiKey);
+};
+
+const getHttpStatus = (error) => error?.status || error?.statusCode;
+
+const canUseFallbackModel = (error) => {
+  const status = getHttpStatus(error);
+  return status === 429 || (typeof status === "number" && status >= 500);
+};
+
+const toAssistantError = (error) => {
+  if (error instanceof AssistantServiceError) return error;
+
+  const status = getHttpStatus(error);
+  if (status === 429) {
+    return new AssistantServiceError(
+      "The Smart Passenger Assistant is busy. Please try again in a moment.",
+    );
+  }
+
+  return new AssistantServiceError(assistantUnavailableMessage);
+};
 
 export const buildPassengerContext = async (userId) => {
   const booking = await Booking.findOne({
@@ -12,7 +61,13 @@ export const buildPassengerContext = async (userId) => {
     status: { $in: ["confirmed", "pending"] },
   })
     .sort({ created_at: -1 })
-    .populate("trip_id");
+    .select("trip_id seat_number status total_amount currency")
+    .populate({
+      path: "trip_id",
+      select:
+        "origin destination departure_time arrival_time vehicle_id status",
+    })
+    .lean();
 
   if (!booking || !booking.trip_id) {
     return {
@@ -23,9 +78,10 @@ export const buildPassengerContext = async (userId) => {
 
   const trip = booking.trip_id;
 
-  const latestLocation = await TripLocation.findOne({ trip_id: trip._id }).sort(
-    { recorded_at: -1 },
-  );
+  const latestLocation = await TripLocation.findOne({ trip_id: trip._id })
+    .sort({ recorded_at: -1 })
+    .select("latitude longitude speed_kmh heading recorded_at")
+    .lean();
 
   return {
     hasActiveBooking: true,
@@ -60,6 +116,7 @@ export const buildPassengerContext = async (userId) => {
 };
 
 export const askPassengerAssistant = async (userId, userQuestion) => {
+  const genAI = createGenerativeAI();
   const context = await buildPassengerContext(userId);
 
   const systemPrompt = `
@@ -91,28 +148,34 @@ Passenger Question:
 
   let responseText;
 
-  // Try gemini-3.5-flash first, fallback to gemini-3.5-flash-lite if busy
+  // Passenger questions are short and factual, so optimize the normal path for latency.
   try {
     const primaryModel = genAI.getGenerativeModel({
-      model: "gemini-3.5-flash",
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.2,
-      },
+      model: fastModel,
+      generationConfig: fastGenerationConfig,
     });
     const result = await primaryModel.generateContent(prompt);
     responseText = result.response.text();
   } catch (primaryErr) {
-    console.warn("Primary model gemini-3.5-flash failed, trying gemini-3.5-flash-lite...", primaryErr.message);
+    if (!canUseFallbackModel(primaryErr)) {
+      console.error("Gemini request failed", { status: getHttpStatus(primaryErr) });
+      throw toAssistantError(primaryErr);
+    }
+
+    console.warn("Fast Gemini model unavailable; trying the fallback model.");
     const fallbackModel = genAI.getGenerativeModel({
-      model: "gemini-3.5-flash-lite",
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.2,
-      },
+      model: fallbackModelName,
+      generationConfig: fastGenerationConfig,
     });
-    const result = await fallbackModel.generateContent(prompt);
-    responseText = result.response.text();
+    try {
+      const result = await fallbackModel.generateContent(prompt);
+      responseText = result.response.text();
+    } catch (fallbackErr) {
+      console.error("Gemini fallback request failed", {
+        status: getHttpStatus(fallbackErr),
+      });
+      throw toAssistantError(fallbackErr);
+    }
   }
 
   try {

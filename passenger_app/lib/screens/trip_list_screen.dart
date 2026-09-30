@@ -39,7 +39,9 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
   }
 
   void _onSearch() {
-    ref.read(tripControllerProvider.notifier).searchTrips(
+    ref
+        .read(tripControllerProvider.notifier)
+        .searchTrips(
           origin: _originController.text.trim(),
           destination: _destinationController.text.trim(),
         );
@@ -64,7 +66,9 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
           icon: const Icon(Icons.refresh_rounded),
           tooltip: 'Refresh trips',
           onPressed: () {
-            ref.read(tripControllerProvider.notifier).loadTrips(forceRefresh: true);
+            ref
+                .read(tripControllerProvider.notifier)
+                .loadTrips(forceRefresh: true);
           },
         ),
         IconButton(
@@ -139,93 +143,97 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
             child: tripState.isLoading
                 ? const SkeletonList(itemCount: 6)
                 : tripState.errorMessage != null
-                    ? Center(
-                        child: Text(
-                          tripState.errorMessage!,
-                          style: TextStyle(color: Theme.of(context).colorScheme.error),
-                        ),
-                      )
-                    : tripState.trips.isEmpty
-                        ? Center(
-                            child: Text(
-                              'No trips found for selected route.',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ? Center(
+                    child: Text(
+                      tripState.errorMessage!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  )
+                : tripState.trips.isEmpty
+                ? Center(
+                    child: Text(
+                      'No trips found for selected route.',
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      ref
+                          .read(tripControllerProvider.notifier)
+                          .loadTrips(forceRefresh: true);
+                    },
+                    child: ListView.separated(
+                      key: const Key('trip_list'),
+                      itemCount: tripState.trips.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: DesignTokens.spaceSm),
+                      itemBuilder: (context, index) {
+                        final trip = tripState.trips[index];
+                        return PolishedCard(
+                          key: Key('trip_item_${trip.id}'),
+                          onTap: () {
+                            AppRoutes.navigateToTripDetail(context, trip);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.directions_bus_rounded,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                            ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: () async {
-                              ref.read(tripControllerProvider.notifier).loadTrips(forceRefresh: true);
-                            },
-                            child: ListView.separated(
-                              key: const Key('trip_list'),
-                              itemCount: tripState.trips.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: DesignTokens.spaceSm),
-                              itemBuilder: (context, index) {
-                              final trip = tripState.trips[index];
-                              return PolishedCard(
-                                key: Key('trip_item_${trip.id}'),
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.tripDetail,
-                                    arguments: trip,
-                                  );
-                                },
-                                child: Row(
+                              const SizedBox(width: DesignTokens.spaceSm),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(
-                                      Icons.directions_bus_rounded,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                    const SizedBox(width: DesignTokens.spaceSm),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            '${trip.origin} → ${trip.destination}',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Departs ${_formatDeparture(trip.departureTime)}',
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.7),
-                                            ),
-                                          ),
-                                        ],
+                                    Text(
+                                      '${trip.origin} → ${trip.destination}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
                                       ),
                                     ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          '${trip.pricePerSeat.toStringAsFixed(0)} ETB',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: Theme.of(context).colorScheme.secondary,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        StatusBadge(status: trip.status),
-                                      ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Departs ${_formatDeparture(trip.departureTime)}',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.7),
+                                      ),
                                     ),
                                   ],
                                 ),
-                              );
-                            },
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '${trip.pricePerSeat.toStringAsFixed(0)} ETB',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  StatusBadge(status: trip.status),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

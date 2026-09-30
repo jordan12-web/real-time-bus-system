@@ -43,5 +43,7 @@ tripLocationSchema.set('toJSON', {
   }
 });
 
+tripLocationSchema.index({ trip_id: 1, recorded_at: -1 });
+
 const TripLocation = mongoose.model('TripLocation', tripLocationSchema);
 export default TripLocation;

@@ -49,5 +49,7 @@ bookingSchema.set('toJSON', {
   }
 });
 
+bookingSchema.index({ user_id: 1, status: 1, created_at: -1 });
+
 const Booking = mongoose.model('Booking', bookingSchema);
 export default Booking;
