@@ -23,10 +23,18 @@ const generationConfig = {
   temperature: 0.2,
 };
 
-const createGenerativeAI = () => {
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
+const normalizeGeminiApiKey = (raw) => {
+  if (raw == null || typeof raw !== "string") return "";
+  return raw.trim().replace(/^["']|["']$/g, "");
+};
 
-  if (!apiKey || !apiKey.startsWith("AIza")) {
+const createGenerativeAI = () => {
+  const apiKey = normalizeGeminiApiKey(process.env.GEMINI_API_KEY);
+
+  if (!apiKey) {
+    console.error(
+      "GEMINI_API_KEY is missing. Set it on the Render backend service (Root Directory: backend), not in the Flutter app.",
+    );
     throw new AssistantServiceError(assistantUnavailableMessage);
   }
 
@@ -46,6 +54,79 @@ const toAssistantError = (error) => {
   }
 
   return new AssistantServiceError(assistantUnavailableMessage);
+};
+
+const formatDateTime = (value) => {
+  if (!value) return "not available";
+
+  return new Intl.DateTimeFormat("en-ET", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Africa/Addis_Ababa",
+  }).format(new Date(value));
+};
+
+const buildDataBackedResponse = (context, question) => {
+  if (!context.hasActiveBooking) {
+    return {
+      answer:
+        "I could not find an active or upcoming booking for your account. You can search available trips and make a reservation from the Search Trips tab.",
+      confidence: 0.9,
+      actionType: "suggest_reserve",
+    };
+  }
+
+  const normalizedQuestion = question.toLowerCase();
+  const { booking, trip, liveTracking } = context;
+
+  if (normalizedQuestion.includes("seat")) {
+    return {
+      answer: `Your assigned seat is ${booking.seatNumber || "not assigned yet"}.`,
+      confidence: 0.98,
+      actionType: "none",
+    };
+  }
+
+  if (
+    normalizedQuestion.includes("where") ||
+    normalizedQuestion.includes("location") ||
+    normalizedQuestion.includes("bus")
+  ) {
+    if (liveTracking.latitude != null && liveTracking.longitude != null) {
+      const speed = liveTracking.speedKmh ?? 0;
+      return {
+        answer: `Your bus from ${trip.origin} to ${trip.destination} was last reported at ${formatDateTime(liveTracking.lastUpdated)} and is travelling at about ${speed} km/h.`,
+        confidence: 0.9,
+        actionType: "none",
+      };
+    }
+
+    return {
+      answer:
+        "Your bus has not started reporting live GPS coordinates yet. Please check back shortly.",
+      confidence: 0.95,
+      actionType: "none",
+    };
+  }
+
+  if (
+    normalizedQuestion.includes("schedule") ||
+    normalizedQuestion.includes("depart") ||
+    normalizedQuestion.includes("arriv") ||
+    normalizedQuestion.includes("time")
+  ) {
+    return {
+      answer: `Your trip from ${trip.origin} to ${trip.destination} departs ${formatDateTime(trip.departureTime)} and is scheduled to arrive ${formatDateTime(trip.arrivalTime)}.`,
+      confidence: 0.95,
+      actionType: "none",
+    };
+  }
+
+  return {
+    answer: `Your ${booking.bookingStatus} trip is from ${trip.origin} to ${trip.destination}. Your seat is ${booking.seatNumber || "not assigned yet"}, with departure scheduled for ${formatDateTime(trip.departureTime)}.`,
+    confidence: 0.85,
+    actionType: "none",
+  };
 };
 
 export const buildPassengerContext = async (userId) => {
@@ -109,7 +190,6 @@ export const buildPassengerContext = async (userId) => {
 };
 
 export const askPassengerAssistant = async (userId, userQuestion) => {
-  const genAI = createGenerativeAI();
   const context = await buildPassengerContext(userId);
 
   const systemPrompt = `
@@ -141,35 +221,43 @@ Passenger Question:
 
   let responseText;
 
-  // Keep the established model request shape for reliable passenger responses.
   try {
-    const primaryModel = genAI.getGenerativeModel({
-      model: primaryModelName,
-      generationConfig,
-    });
-    const result = await primaryModel.generateContent(prompt);
-    responseText = result.response.text();
-  } catch (primaryErr) {
-    console.warn("Primary Gemini model failed; trying the fallback model.", {
-      model: primaryModelName,
-      status: getHttpStatus(primaryErr),
-      message: primaryErr.message,
-    });
-    const fallbackModel = genAI.getGenerativeModel({
-      model: fallbackModelName,
-      generationConfig,
-    });
+    const genAI = createGenerativeAI();
     try {
-      const result = await fallbackModel.generateContent(prompt);
-      responseText = result.response.text();
-    } catch (fallbackErr) {
-      console.error("Gemini fallback request failed", {
-        model: fallbackModelName,
-        status: getHttpStatus(fallbackErr),
-        message: fallbackErr.message,
+      const primaryModel = genAI.getGenerativeModel({
+        model: primaryModelName,
+        generationConfig,
       });
-      throw toAssistantError(fallbackErr);
+      const result = await primaryModel.generateContent(prompt);
+      responseText = result.response.text();
+    } catch (primaryErr) {
+      console.warn("Primary Gemini model failed; trying the fallback model.", {
+        model: primaryModelName,
+        status: getHttpStatus(primaryErr),
+        message: primaryErr.message,
+      });
+      try {
+        const fallbackModel = genAI.getGenerativeModel({
+          model: fallbackModelName,
+          generationConfig,
+        });
+        const result = await fallbackModel.generateContent(prompt);
+        responseText = result.response.text();
+      } catch (fallbackErr) {
+        console.error("Gemini fallback request failed", {
+          model: fallbackModelName,
+          status: getHttpStatus(fallbackErr),
+          message: fallbackErr.message,
+        });
+        return buildDataBackedResponse(context, userQuestion);
+      }
     }
+  } catch (error) {
+    const assistantError = toAssistantError(error);
+    console.error("Gemini is unavailable; using the data-backed assistant.", {
+      status: assistantError.statusCode,
+    });
+    return buildDataBackedResponse(context, userQuestion);
   }
 
   try {
