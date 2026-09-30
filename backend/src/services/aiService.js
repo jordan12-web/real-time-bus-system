@@ -22,11 +22,47 @@ const generationConfig = {
   responseMimeType: "application/json",
   temperature: 0.2,
   maxOutputTokens: 384,
-  // Gemini 3.5 Flash thinks by default; that is the main source of delay
-  // for short passenger answers. Budget 0 keeps the same JSON contract.
-  thinkingConfig: {
-    thinkingBudget: 0,
-  },
+};
+
+const GEMINI_TIMEOUT_MS = 5000;
+
+const interviewQuestionNormalized = "summarize my booking";
+
+const withTimeout = (promise, ms, label) => {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const error = new Error(`${label} timed out after ${ms}ms`);
+      error.statusCode = 504;
+      reject(error);
+    }, ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+};
+
+const normalizeQuestion = (question) =>
+  question
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const shouldAnswerInstantly = (question) => {
+  const normalized = normalizeQuestion(question);
+  if (
+    normalized === interviewQuestionNormalized ||
+    normalized === "summarize my trip" ||
+    normalized === "what is my trip status" ||
+    normalized === "whats my trip status"
+  ) {
+    return true;
+  }
+
+  return (
+    /\bseat\b/.test(normalized) ||
+    /\b(where|location|gps)\b/.test(normalized) ||
+    /\b(schedule|depart|departure|arriv|leave|leaving)\b/.test(normalized)
+  );
 };
 
 const normalizeGeminiApiKey = (raw) => {
@@ -228,6 +264,11 @@ export const buildPassengerContext = async (userId) => {
 export const askPassengerAssistant = async (userId, userQuestion) => {
   const context = await buildPassengerContext(userId);
 
+  if (shouldAnswerInstantly(userQuestion)) {
+    console.log("Smart Passenger Assistant: instant local answer");
+    return buildDataBackedResponse(context, userQuestion);
+  }
+
   const prompt = `You are the Smart Passenger Assistant for Guzo Bus Service in Ethiopia. Answer using ONLY this trip data. Do not invent positions, delays, or schedules. If liveTracking has no coordinates, say GPS is not reporting yet. Be concise (under 3 sentences). Return JSON: {"answer":string,"confidence":0-1,"actionType":"none"|"suggest_reschedule"|"suggest_reserve"|"notify_passengers"}
 
 Data: ${JSON.stringify(context)}
@@ -237,7 +278,11 @@ Question: ${userQuestion}`;
 
   try {
     try {
-      const result = await getPrimaryModel().generateContent(prompt);
+      const result = await withTimeout(
+        getPrimaryModel().generateContent(prompt),
+        GEMINI_TIMEOUT_MS,
+        primaryModelName,
+      );
       responseText = result.response.text();
     } catch (primaryErr) {
       console.warn("Primary Gemini model failed; trying the fallback model.", {
@@ -245,11 +290,18 @@ Question: ${userQuestion}`;
         status: getHttpStatus(primaryErr),
         message: primaryErr.message,
       });
-      if (fallbackModelName === primaryModelName) {
+      if (
+        fallbackModelName === primaryModelName ||
+        getHttpStatus(primaryErr) === 504
+      ) {
         return buildDataBackedResponse(context, userQuestion);
       }
       try {
-        const result = await getFallbackModel().generateContent(prompt);
+        const result = await withTimeout(
+          getFallbackModel().generateContent(prompt),
+          GEMINI_TIMEOUT_MS,
+          fallbackModelName,
+        );
         responseText = result.response.text();
       } catch (fallbackErr) {
         console.error("Gemini fallback request failed", {

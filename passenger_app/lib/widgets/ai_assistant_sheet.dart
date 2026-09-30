@@ -27,7 +27,6 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
   final ScrollController _scrollController = ScrollController();
 
   static const List<String> _suggestions = [
-    '📍 Where is my bus right now?',
     '🎫 What is my assigned seat?',
     '⏱️ Is my bus on schedule?',
     '🛑 What are the trip details?',
@@ -67,7 +66,9 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final sheetBg = isDark ? DesignTokens.darkSurface : Colors.white;
-    final primaryColor = isDark ? DesignTokens.darkPrimary : DesignTokens.primary;
+    final primaryColor = isDark
+        ? DesignTokens.darkPrimary
+        : DesignTokens.primary;
     final textColor = isDark ? Colors.white : const Color(0xFF1E293B);
     final subtextColor = isDark ? Colors.white70 : const Color(0xFF64748B);
 
@@ -170,20 +171,33 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
                 ),
                 IconButton(
                   tooltip: 'Clear conversation',
-                  icon: Icon(Icons.refresh_rounded, color: subtextColor, size: 20),
+                  icon: Icon(
+                    Icons.refresh_rounded,
+                    color: subtextColor,
+                    size: 20,
+                  ),
                   onPressed: () {
                     ref.read(aiAssistantProvider.notifier).reset();
                   },
                 ),
                 IconButton(
                   tooltip: 'Close',
-                  icon: Icon(Icons.close_rounded, color: subtextColor, size: 20),
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: subtextColor,
+                    size: 20,
+                  ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
           ),
-          Divider(height: 1, color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
+          Divider(
+            height: 1,
+            color: isDark
+                ? Colors.white10
+                : Colors.black.withValues(alpha: 0.06),
+          ),
 
           // ── Quick Suggestions Bar ─────────────────────────────────────────
           Container(
@@ -214,10 +228,15 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 0,
+                  ),
                   onPressed: state.isLoading
                       ? null
-                      : () => _handleSend(suggestion.replaceAll(RegExp(r'^[^\w]+'), '').trim()),
+                      : () => _handleSend(
+                          suggestion.replaceAll(RegExp(r'^[^\w]+'), '').trim(),
+                        ),
                 );
               },
             ),
@@ -231,7 +250,11 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
               itemCount: state.messages.length + (state.isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == state.messages.length) {
-                  return _buildLoadingBubble(isDark, primaryColor, subtextColor);
+                  return _buildLoadingBubble(
+                    isDark,
+                    primaryColor,
+                    subtextColor,
+                  );
                 }
                 final message = state.messages[index];
                 return _buildMessageBubble(
@@ -253,7 +276,9 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
                 color: isDark ? DesignTokens.darkSurface : Colors.white,
                 border: Border(
                   top: BorderSide(
-                    color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                    color: isDark
+                        ? Colors.white10
+                        : Colors.black.withValues(alpha: 0.06),
                   ),
                 ),
               ),
@@ -267,16 +292,15 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
                             : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                          color: isDark
+                              ? Colors.white12
+                              : const Color(0xFFE2E8F0),
                         ),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: TextField(
                         controller: _textController,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: textColor,
-                        ),
+                        style: TextStyle(fontSize: 14, color: textColor),
                         decoration: InputDecoration(
                           hintText: 'Ask about your trip, seat, or bus...',
                           hintStyle: TextStyle(
@@ -285,7 +309,9 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
                           ),
                           border: InputBorder.none,
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                          ),
                         ),
                         textInputAction: TextInputAction.send,
                         onSubmitted: (_) => _handleSend(),
@@ -307,7 +333,11 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 20),
+                      icon: const Icon(
+                        Icons.arrow_upward_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       onPressed: state.isLoading ? null : () => _handleSend(),
                     ),
                   ),
@@ -402,7 +432,10 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
                 if (message.confidence != null && message.confidence! > 0) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: primaryColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
@@ -422,11 +455,7 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
             const SizedBox(height: 8),
             Text(
               message.text,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 14,
-                height: 1.4,
-              ),
+              style: TextStyle(color: textColor, fontSize: 14, height: 1.4),
             ),
           ],
         ),
@@ -434,7 +463,11 @@ class _AiAssistantSheetState extends ConsumerState<AiAssistantSheet> {
     );
   }
 
-  Widget _buildLoadingBubble(bool isDark, Color primaryColor, Color subtextColor) {
+  Widget _buildLoadingBubble(
+    bool isDark,
+    Color primaryColor,
+    Color subtextColor,
+  ) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
