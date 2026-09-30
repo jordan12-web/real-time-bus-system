@@ -21,6 +21,12 @@ const fallbackModelName = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash
 const generationConfig = {
   responseMimeType: "application/json",
   temperature: 0.2,
+  maxOutputTokens: 384,
+  // Gemini 3.5 Flash thinks by default; that is the main source of delay
+  // for short passenger answers. Budget 0 keeps the same JSON contract.
+  thinkingConfig: {
+    thinkingBudget: 0,
+  },
 };
 
 const normalizeGeminiApiKey = (raw) => {
@@ -39,6 +45,36 @@ const createGenerativeAI = () => {
   }
 
   return new GoogleGenerativeAI(apiKey);
+};
+
+let generativeAIClient;
+let primaryModel;
+let fallbackModel;
+
+const getPrimaryModel = () => {
+  if (!generativeAIClient) {
+    generativeAIClient = createGenerativeAI();
+  }
+  if (!primaryModel) {
+    primaryModel = generativeAIClient.getGenerativeModel({
+      model: primaryModelName,
+      generationConfig,
+    });
+  }
+  return primaryModel;
+};
+
+const getFallbackModel = () => {
+  if (!generativeAIClient) {
+    generativeAIClient = createGenerativeAI();
+  }
+  if (!fallbackModel) {
+    fallbackModel = generativeAIClient.getGenerativeModel({
+      model: fallbackModelName,
+      generationConfig,
+    });
+  }
+  return fallbackModel;
 };
 
 const getHttpStatus = (error) => error?.status || error?.statusCode;
@@ -192,43 +228,16 @@ export const buildPassengerContext = async (userId) => {
 export const askPassengerAssistant = async (userId, userQuestion) => {
   const context = await buildPassengerContext(userId);
 
-  const systemPrompt = `
-You are the Smart Passenger Assistant (SPA) for Guzo Bus Service in Ethiopia.
-Your job is to answer passenger questions accurately, concisely, and empathetically using ONLY the provided real-time trip and tracking data.
+  const prompt = `You are the Smart Passenger Assistant for Guzo Bus Service in Ethiopia. Answer using ONLY this trip data. Do not invent positions, delays, or schedules. If liveTracking has no coordinates, say GPS is not reporting yet. Be concise (under 3 sentences). Return JSON: {"answer":string,"confidence":0-1,"actionType":"none"|"suggest_reschedule"|"suggest_reserve"|"notify_passengers"}
 
-Rules:
-1. Rely strictly on the context provided. Do not invent or assume bus positions, delays, or schedules.
-2. If liveTracking has no data yet, inform the passenger that the bus has not started reporting its live GPS coordinates.
-3. Be professional, friendly, and concise (under 3 sentences when possible).
-4. You must output valid JSON matching this schema:
-{
-  "answer": "Your human-friendly message to the passenger",
-  "confidence": 0.0 to 1.0,
-  "actionType": "none" | "suggest_reschedule" | "suggest_reserve" | "notify_passengers"
-}
-`;
-
-  const prompt = `
-System Context:
-${systemPrompt}
-
-Current Real-Time Data Context:
-${JSON.stringify(context, null, 2)}
-
-Passenger Question:
-"${userQuestion}"
-`;
+Data: ${JSON.stringify(context)}
+Question: ${userQuestion}`;
 
   let responseText;
 
   try {
-    const genAI = createGenerativeAI();
     try {
-      const primaryModel = genAI.getGenerativeModel({
-        model: primaryModelName,
-        generationConfig,
-      });
-      const result = await primaryModel.generateContent(prompt);
+      const result = await getPrimaryModel().generateContent(prompt);
       responseText = result.response.text();
     } catch (primaryErr) {
       console.warn("Primary Gemini model failed; trying the fallback model.", {
@@ -236,12 +245,11 @@ Passenger Question:
         status: getHttpStatus(primaryErr),
         message: primaryErr.message,
       });
+      if (fallbackModelName === primaryModelName) {
+        return buildDataBackedResponse(context, userQuestion);
+      }
       try {
-        const fallbackModel = genAI.getGenerativeModel({
-          model: fallbackModelName,
-          generationConfig,
-        });
-        const result = await fallbackModel.generateContent(prompt);
+        const result = await getFallbackModel().generateContent(prompt);
         responseText = result.response.text();
       } catch (fallbackErr) {
         console.error("Gemini fallback request failed", {

@@ -15,6 +15,9 @@ class AiService {
           '/ai/query',
           data: {'question': question},
         ),
+        // Timeouts here are usually a slow model, not a dropped packet.
+        // Retrying would wait another 30s+ without improving answers.
+        maxAttempts: 1,
       );
 
       final body = response.data;

@@ -44,6 +44,11 @@ Under the **Environment** tab on Render, add the following environment variables
 | `CHAPA_SECRET_KEY` | `CHASECK_TEST-xxxxxxxxxxxxxxxxxxxx` | Chapa sandbox secret key |
 | `CHAPA_PUBLIC_KEY` | `CHAPUB_TEST-xxxxxxxxxxxxxxxxxxxx` | Chapa sandbox public key |
 | `SENTRY_DSN` | `https://xxxx@o0.ingest.sentry.io/0` | Optional Sentry monitoring DSN |
+| `GEMINI_API_KEY` | Google AI Studio or Gemini API key | **Required for full AI answers.** Create at [Google AI Studio](https://aistudio.google.com/apikey). Must be on this **backend** Render service (`Root Directory`: `backend`), not in the Flutter passenger app. |
+| `GEMINI_MODEL` | `gemini-3.5-flash` | Optional; defaults to `gemini-3.5-flash` |
+| `GEMINI_FALLBACK_MODEL` | `gemini-3.5-flash-lite` | Optional; used if the primary model fails |
+
+After saving environment variables, trigger a **Manual Deploy** and check logs for `Smart Passenger Assistant: GEMINI_API_KEY is configured.`
 
 ---
 
