@@ -15,14 +15,12 @@ class AssistantServiceError extends Error {
 const assistantUnavailableMessage =
   "The Smart Passenger Assistant is temporarily unavailable. Please try again shortly.";
 
-const fastModel = process.env.GEMINI_FAST_MODEL || "gemini-3.5-flash-lite";
-const fallbackModelName = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash";
+const primaryModelName = process.env.GEMINI_MODEL || "gemini-3.5-flash";
+const fallbackModelName = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite";
 
-const fastGenerationConfig = {
+const generationConfig = {
   responseMimeType: "application/json",
   temperature: 0.2,
-  maxOutputTokens: 180,
-  thinkingConfig: { thinkingLevel: "minimal" },
 };
 
 const createGenerativeAI = () => {
@@ -36,11 +34,6 @@ const createGenerativeAI = () => {
 };
 
 const getHttpStatus = (error) => error?.status || error?.statusCode;
-
-const canUseFallbackModel = (error) => {
-  const status = getHttpStatus(error);
-  return status === 429 || (typeof status === "number" && status >= 500);
-};
 
 const toAssistantError = (error) => {
   if (error instanceof AssistantServiceError) return error;
@@ -148,31 +141,32 @@ Passenger Question:
 
   let responseText;
 
-  // Passenger questions are short and factual, so optimize the normal path for latency.
+  // Keep the established model request shape for reliable passenger responses.
   try {
     const primaryModel = genAI.getGenerativeModel({
-      model: fastModel,
-      generationConfig: fastGenerationConfig,
+      model: primaryModelName,
+      generationConfig,
     });
     const result = await primaryModel.generateContent(prompt);
     responseText = result.response.text();
   } catch (primaryErr) {
-    if (!canUseFallbackModel(primaryErr)) {
-      console.error("Gemini request failed", { status: getHttpStatus(primaryErr) });
-      throw toAssistantError(primaryErr);
-    }
-
-    console.warn("Fast Gemini model unavailable; trying the fallback model.");
+    console.warn("Primary Gemini model failed; trying the fallback model.", {
+      model: primaryModelName,
+      status: getHttpStatus(primaryErr),
+      message: primaryErr.message,
+    });
     const fallbackModel = genAI.getGenerativeModel({
       model: fallbackModelName,
-      generationConfig: fastGenerationConfig,
+      generationConfig,
     });
     try {
       const result = await fallbackModel.generateContent(prompt);
       responseText = result.response.text();
     } catch (fallbackErr) {
       console.error("Gemini fallback request failed", {
+        model: fallbackModelName,
         status: getHttpStatus(fallbackErr),
+        message: fallbackErr.message,
       });
       throw toAssistantError(fallbackErr);
     }
